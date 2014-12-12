@@ -26,9 +26,9 @@
             container.RegisterMultiple(typeof(IValidator), validatorRuleTypes);
         }
 
-        protected override void RegisterValidatorLocator(TinyIoCContainer container, IEnumerable<Type> validatorRuleTypes)
+        protected override void RegisterValidatorLocator(TinyIoCContainer container, Type validatorLocatorType)
         {
-            container.Register(typeof (IValidatorLocator), validatorRuleTypes).AsSingleton();
+            container.Register(typeof(IValidatorLocator), validatorLocatorType).AsSingleton();
         }
     }
 }

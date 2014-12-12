@@ -43,7 +43,7 @@ namespace FerroJson.Bootstrapper
 
         protected abstract void RegisterValidators(TContainer container, IEnumerable<Type> validatorRuleTypes);
         
-        protected abstract void RegisterValidatorLocator(TContainer container, IEnumerable<Type> validatorRuleTypes);
+        protected abstract void RegisterValidatorLocator(TContainer container, Type validatorLocatorType);
 
         protected virtual void ConfigureApplicationContainer(TContainer container)
         {
@@ -54,9 +54,9 @@ namespace FerroJson.Bootstrapper
             get { return AppDomainScanner.Types<IValidator>(); }
         }
 
-        protected virtual IEnumerable<Type> ValidatorLocator
+        protected virtual Type ValidatorLocator
         {
-            get { return AppDomainScanner.Types<IValidatorLocator>(); }
+            get { return typeof(DefaultValidatorLocator); }
         }
 
         private void Initialize()

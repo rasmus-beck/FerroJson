@@ -3,16 +3,11 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public interface IValidatorLocator
-    {
-        IValidator GetValidator();
-    }
-
-    public class ValidatorLocator : IValidatorLocator
+    public class DefaultValidatorLocator : IValidatorLocator
     {
         private readonly IEnumerable<IValidator> _validators;
 
-        public ValidatorLocator(IEnumerable<IValidator> validators)
+        public DefaultValidatorLocator(IEnumerable<IValidator> validators)
         {
             _validators = validators;
         }

@@ -16,12 +16,9 @@ namespace FerroJson.JsonSchemaV4
 
         public bool CanValidate(ParseTree jsonSchema)
         {
-            var schemaIdentifier = jsonSchema.Root.ChildNodes.FirstOrDefault(x => x.ChildNodes.Any(y => y.Token.ValueString == "$schema"));
-
-            if (null == schemaIdentifier) return false;
-            
-            var schemaIdentifierProperty = schemaIdentifier.ChildNodes.FirstOrDefault(y => y.Token.ValueString != "$schema");
-            return null != schemaIdentifierProperty && schemaIdentifierProperty.Token.ValueString == SchemaIdentifier;
+            //Does this need to be a better check? Right now we only look for the existence of a property value that matches the schema identifier.
+            var schemaIdentifier = jsonSchema.Root.ChildNodes.SelectMany(x => x.ChildNodes).FirstOrDefault(y => y.Token.ValueString == SchemaIdentifier);
+            return null != schemaIdentifier;
         }
 
         public bool Validate(ParseTree jsonDoc, ParseTree jsonSchema)

@@ -1,7 +1,9 @@
-﻿namespace FerroJson.Bootstrapper
+﻿using Irony.Parsing;
+
+namespace FerroJson.Bootstrapper
 {
     public interface IValidatorLocator
     {
-        IValidator GetValidator();
+        IValidator GetValidator(ParseTree jsonSchema);
     }
 }

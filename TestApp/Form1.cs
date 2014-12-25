@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows.Forms;
 
 namespace TestApp
@@ -19,8 +13,12 @@ namespace TestApp
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var validator = new FerroJson.Validator();
-            validator.Validate();
+            using (var sr = File.OpenText("v4schema.json"))
+            {
+                var s = sr.ReadToEnd();
+                var validator = new FerroJson.Validator();
+                validator.Validate(s, s);   
+            }
         }
     }
 }

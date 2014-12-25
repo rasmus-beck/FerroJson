@@ -1,47 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
+using FerroJson.JsonSchemaV4;
 
 namespace FerroJson.Bootstrapper
 {
     public interface IBootstrapper
     {
-        IEnumerable<IValidator> GetValidators();
         IValidatorLocator GetValidatorLocator();
     }
 
     public abstract class Bootstrapper<TContainer> : IBootstrapper
     {
-        private bool isInitialized;
-
-        public IEnumerable<IValidator> GetValidators()
-        {
-            if (!this.isInitialized)
-            {
-                this.Initialize();
-            }
-
-            return this.GetValidators(this.ApplicationContainer);
-        }
+        private bool _isInitialized;
 
         public IValidatorLocator GetValidatorLocator()
         {
-            if (!this.isInitialized)
+            if (!_isInitialized)
             {
-                this.Initialize();
+                Initialize();
             }
 
-            return this.GetValidatorLocator(this.ApplicationContainer);
+            return GetValidatorLocator(ApplicationContainer);
         }
 
         protected TContainer ApplicationContainer { get; set; }
 
         protected abstract TContainer GetApplicationContainer();
 
-        protected abstract IEnumerable<IValidator> GetValidators(TContainer container);
-
         protected abstract IValidatorLocator GetValidatorLocator(TContainer container);
 
-        protected abstract void RegisterValidators(TContainer container, IEnumerable<Type> validatorRuleTypes);
+        protected abstract void RegisterValidators(TContainer container, IEnumerable<Type> validatorTypes);
+
+        protected abstract void RegisterValidatorV4Rules(TContainer container, IEnumerable<Type> validatorV4RuleTypes);
         
         protected abstract void RegisterValidatorLocator(TContainer container, Type validatorLocatorType);
 
@@ -54,6 +44,11 @@ namespace FerroJson.Bootstrapper
             get { return AppDomainScanner.Types<IValidator>(); }
         }
 
+        protected virtual IEnumerable<Type> ValidatorV4Rules
+        {
+            get { return AppDomainScanner.Types<IJsonSchemaV4ValidatorRule>(); }
+        }
+
         protected virtual Type ValidatorLocator
         {
             get { return typeof(DefaultValidatorLocator); }
@@ -61,11 +56,12 @@ namespace FerroJson.Bootstrapper
 
         private void Initialize()
         {
-            this.ApplicationContainer = this.GetApplicationContainer();
-            this.RegisterValidators(this.ApplicationContainer, this.Validators);
-            this.RegisterValidatorLocator(this.ApplicationContainer, this.ValidatorLocator);
-            this.ConfigureApplicationContainer(this.ApplicationContainer);
-            this.isInitialized = true;
+            ApplicationContainer = GetApplicationContainer();
+            RegisterValidators(ApplicationContainer, Validators);
+            RegisterValidatorV4Rules(ApplicationContainer, ValidatorV4Rules);
+            RegisterValidatorLocator(ApplicationContainer, ValidatorLocator);
+            ConfigureApplicationContainer(ApplicationContainer);
+            _isInitialized = true;
         }
     }
 }

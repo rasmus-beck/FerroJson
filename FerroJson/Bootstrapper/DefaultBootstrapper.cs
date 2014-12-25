@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using TinyIoC;
+    using JsonSchemaV4;
 
     public class DefaultBootstrapper : Bootstrapper<TinyIoCContainer>
     {
@@ -11,19 +12,19 @@
             return new TinyIoCContainer();
         }
 
-        protected override IEnumerable<IValidator> GetValidators(TinyIoCContainer container)
-        {
-            return container.ResolveAll<IValidator>();
-        }
-
         protected override IValidatorLocator GetValidatorLocator(TinyIoCContainer container)
         {
             return container.Resolve<IValidatorLocator>();
         }
 
-        protected override void RegisterValidators(TinyIoCContainer container, IEnumerable<Type> validatorRuleTypes)
+        protected override void RegisterValidators(TinyIoCContainer container, IEnumerable<Type> validatorTypes)
         {
-            container.RegisterMultiple(typeof(IValidator), validatorRuleTypes);
+            container.RegisterMultiple(typeof(IValidator), validatorTypes);
+        }
+
+        protected override void RegisterValidatorV4Rules(TinyIoCContainer container, IEnumerable<Type> validatorV4RuleTypes)
+        {
+            container.RegisterMultiple(typeof(IJsonSchemaV4ValidatorRule), validatorV4RuleTypes);
         }
 
         protected override void RegisterValidatorLocator(TinyIoCContainer container, Type validatorLocatorType)

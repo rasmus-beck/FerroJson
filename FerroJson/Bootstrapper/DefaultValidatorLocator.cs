@@ -1,4 +1,6 @@
-﻿namespace FerroJson.Bootstrapper
+﻿using Irony.Parsing;
+
+namespace FerroJson.Bootstrapper
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -12,9 +14,9 @@
             _validators = validators;
         }
 
-        public IValidator GetValidator()
+        public IValidator GetValidator(ParseTree jsonSchema)
         {
-            return _validators.FirstOrDefault(v => v.CanValidate());
+            return _validators.FirstOrDefault(v => v.CanValidate(jsonSchema));
         }
     }
 }

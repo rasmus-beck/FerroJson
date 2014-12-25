@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Irony.Parsing;
 
 namespace FerroJson
 {
     public interface IValidator
     {
-        bool CanValidate();
-        bool Validate();
+        bool CanValidate(ParseTree jsonSchema);
+        bool Validate(ParseTree jsonDoc, ParseTree jsonSchema);
     }
 }

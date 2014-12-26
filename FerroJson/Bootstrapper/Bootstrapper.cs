@@ -46,7 +46,7 @@ namespace FerroJson.Bootstrapper
 
         protected virtual IEnumerable<Type> ValidatorV4Rules
         {
-            get { return AppDomainScanner.Types<IJsonSchemaV4ValidatorRule>(); }
+            get { return AppDomainScanner.Types<IJsonSchemaV4ValidatorRuleFactory>(); }
         }
 
         protected virtual Type ValidatorLocator

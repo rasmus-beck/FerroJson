@@ -24,7 +24,7 @@
 
         protected override void RegisterValidatorV4Rules(TinyIoCContainer container, IEnumerable<Type> validatorV4RuleTypes)
         {
-            container.RegisterMultiple(typeof(IJsonSchemaV4ValidatorRule), validatorV4RuleTypes);
+            container.RegisterMultiple(typeof(IJsonSchemaV4ValidatorRuleFactory), validatorV4RuleTypes);
         }
 
         protected override void RegisterValidatorLocator(TinyIoCContainer container, Type validatorLocatorType)

@@ -18,7 +18,10 @@ namespace FerroJson
             //TODO: Next run through Json schema abstract syntax tree to build the property rules dictionary. 
             //Find a suitable key based on location in document, this should also support arrays
 
-            return new JsonSchema(propertyRules);
+            var allowAdditionalProperties = true;
+            var requiredProperties = new string[]{};
+
+            return new JsonSchema(propertyRules, allowAdditionalProperties, requiredProperties);
 
         }
     }

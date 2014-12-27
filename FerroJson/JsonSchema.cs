@@ -6,15 +6,22 @@ namespace FerroJson
 {
     public class JsonSchema : IJsonSchema
     {
-        public SortedDictionary<string, IList<Func<object, bool>>> SchemaProperties { get; private set; }
+        private readonly SortedDictionary<string, IList<Func<object, bool>>> _schemaProperties;
+        private readonly bool _allowAdditionalProperties;
+        private readonly IList<string> _requiredProperties;
 
-        public JsonSchema(SortedDictionary<string, IList<Func<object, bool>>> schemaProperties)
+        public JsonSchema(SortedDictionary<string, IList<Func<object, bool>>> schemaProperties, bool allowAdditionalProperties, IList<string> requiredProperties)
         {
-            SchemaProperties = schemaProperties;
+            _schemaProperties = schemaProperties;
+            _allowAdditionalProperties = allowAdditionalProperties;
+            _requiredProperties = requiredProperties;
         }
 
         public bool TryValidate(ParseTree jsonDoc, out IEnumerable<string> validationErrors)
         {
+            //TODO: Run through json document forward only, and apply rules that match each
+            // remember checks for the special cases _allowAdditionalProperties and _requiredProperties
+
             throw new NotImplementedException();
         }
     }

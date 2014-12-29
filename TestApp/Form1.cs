@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 
@@ -17,7 +18,8 @@ namespace TestApp
             {
                 var s = sr.ReadToEnd();
                 var validator = new FerroJson.Validator();
-                validator.Validate(s, s);   
+                IEnumerable<string> errors = new List<string>();
+                validator.Validate(s, s, out errors);   
             }
         }
     }

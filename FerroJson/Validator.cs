@@ -8,7 +8,7 @@ namespace FerroJson
 {
     public class Validator
     {
-        public bool Validate(string jsonDocument, string jsonSchema)
+        public bool Validate(string jsonDocument, string jsonSchema, out IEnumerable<string> errors)
         {
             var jsonGrammar = new JsonGrammar();
             var jsonParser = new Parser(jsonGrammar);
@@ -33,16 +33,8 @@ namespace FerroJson
             var jsonSchemaFactory = bootStrapper.GetJsonSchemaFactory();
 
             var schema = jsonSchemaFactory.GetSchema(jsonSchemaAst);
-            IEnumerable<string> errors;
-            if (null != schema && !schema.TryValidate(jsonDocAst, out errors))
-            {
-                Errors = errors;
-                return false;
-            }
-
-            return true;
+            errors = new List<string>();
+            return null == schema || schema.TryValidate(jsonDocAst, out errors);
         }
-
-        public IEnumerable<string> Errors { get; set; }
     }
 }

@@ -1,17 +1,19 @@
 ﻿using System.Collections.Generic;
+using FerroJson.PropertyRuleFactories;
 using Irony.Parsing;
 using System.Linq;
 
 namespace FerroJson.JsonSchemaV4
 {
-    public class V4Validator : IValidator
+    public class V4Validator
     {
         private const string SchemaIdentifier = "http://json-schema.org/draft-04/schema#";
-        public IEnumerable<IJsonSchemaV4ValidatorRuleFactory> RuleFactories { get; private set; }
+        
+        public IEnumerable<IPropertyValidatorRuleFactory> RuleFactories { get; private set; }
 
-        public V4Validator(IEnumerable<IJsonSchemaV4ValidatorRuleFactory> ruleFactories)
+        public V4Validator(IEnumerable<IPropertyValidatorRuleFactory> ruleFactories)
         {
-            RuleFactories = ruleFactories;
+            RuleFactories = ruleFactories.Where(x => x.SupportedSchemaVersions.Contains(JsonSchema.SchemaVersion.V4));
         }
 
         public bool CanValidate(ParseTree jsonSchema)

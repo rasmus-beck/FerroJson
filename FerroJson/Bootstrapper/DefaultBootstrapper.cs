@@ -3,7 +3,8 @@
     using System;
     using System.Collections.Generic;
     using TinyIoC;
-    using JsonSchemaV4;
+    using ObjectRuleFactories;
+    using PropertyRuleFactories;
 
     public class DefaultBootstrapper : Bootstrapper<TinyIoCContainer>
     {
@@ -12,24 +13,19 @@
             return new TinyIoCContainer();
         }
 
-        protected override IValidatorLocator GetValidatorLocator(TinyIoCContainer container)
+        protected override void RegisterPropertyValidatorRuleFactories(TinyIoCContainer container, IEnumerable<Type> propertyValidatorRuleFactoriesTypes)
         {
-            return container.Resolve<IValidatorLocator>();
+            container.RegisterMultiple(typeof(IPropertyValidatorRuleFactory), propertyValidatorRuleFactoriesTypes);
         }
 
-        protected override void RegisterValidators(TinyIoCContainer container, IEnumerable<Type> validatorTypes)
+        protected override void RegisterObjectValidatorRuleFactories(TinyIoCContainer container, IEnumerable<Type> objectValidatorRuleFactoriesTypes)
         {
-            container.RegisterMultiple(typeof(IValidator), validatorTypes);
+            container.RegisterMultiple(typeof(IObjectValidatorRuleFactory), objectValidatorRuleFactoriesTypes);
         }
 
-        protected override void RegisterValidatorV4Rules(TinyIoCContainer container, IEnumerable<Type> validatorV4RuleTypes)
+        protected override IJsonSchemaFactory GetJsonSchemaFactory(TinyIoCContainer container)
         {
-            container.RegisterMultiple(typeof(IJsonSchemaV4ValidatorRuleFactory), validatorV4RuleTypes);
-        }
-
-        protected override void RegisterValidatorLocator(TinyIoCContainer container, Type validatorLocatorType)
-        {
-            container.Register(typeof(IValidatorLocator), validatorLocatorType).AsSingleton();
+            return container.Resolve<IJsonSchemaFactory>();
         }
     }
 }

@@ -1,65 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
-using FerroJson.JsonSchemaV4;
+using FerroJson.ObjectRuleFactories;
+using FerroJson.PropertyRuleFactories;
 
 namespace FerroJson.Bootstrapper
 {
     public interface IBootstrapper
     {
-        IValidatorLocator GetValidatorLocator();
+        IJsonSchemaFactory GetJsonSchemaFactory();
     }
 
     public abstract class Bootstrapper<TContainer> : IBootstrapper
     {
         private bool _isInitialized;
 
-        public IValidatorLocator GetValidatorLocator()
+        public IJsonSchemaFactory GetJsonSchemaFactory()
         {
             if (!_isInitialized)
             {
                 Initialize();
             }
 
-            return GetValidatorLocator(ApplicationContainer);
+            return GetJsonSchemaFactory(ApplicationContainer);
         }
 
         protected TContainer ApplicationContainer { get; set; }
 
         protected abstract TContainer GetApplicationContainer();
 
-        protected abstract IValidatorLocator GetValidatorLocator(TContainer container);
-
-        protected abstract void RegisterValidators(TContainer container, IEnumerable<Type> validatorTypes);
-
-        protected abstract void RegisterValidatorV4Rules(TContainer container, IEnumerable<Type> validatorV4RuleTypes);
+        protected abstract void RegisterPropertyValidatorRuleFactories(TContainer container, IEnumerable<Type> propertyValidatorRuleFactoriesTypes);
         
-        protected abstract void RegisterValidatorLocator(TContainer container, Type validatorLocatorType);
+        protected abstract void RegisterObjectValidatorRuleFactories(TContainer container, IEnumerable<Type> objectValidatorRuleFactoriesTypes);
 
-        protected virtual void ConfigureApplicationContainer(TContainer container)
+        protected abstract IJsonSchemaFactory GetJsonSchemaFactory(TContainer container);
+        
+        protected virtual void ConfigureApplicationContainer(TContainer container) {}
+
+        protected virtual IEnumerable<Type> PropertyValidatorRuleFactories
         {
+            get { return AppDomainScanner.Types<IPropertyValidatorRuleFactory>(); }
         }
 
-        protected virtual IEnumerable<Type> Validators
+        protected virtual IEnumerable<Type> ObjectValidatorRuleFactories
         {
-            get { return AppDomainScanner.Types<IValidator>(); }
+            get { return AppDomainScanner.Types<IObjectValidatorRuleFactory>(); }
         }
 
-        protected virtual IEnumerable<Type> ValidatorV4Rules
+        protected virtual Type JsonSchemaFactory
         {
-            get { return AppDomainScanner.Types<IJsonSchemaV4ValidatorRuleFactory>(); }
-        }
-
-        protected virtual Type ValidatorLocator
-        {
-            get { return typeof(DefaultValidatorLocator); }
+            get { return typeof(IJsonSchemaFactory); }
         }
 
         private void Initialize()
         {
             ApplicationContainer = GetApplicationContainer();
-            RegisterValidators(ApplicationContainer, Validators);
-            RegisterValidatorV4Rules(ApplicationContainer, ValidatorV4Rules);
-            RegisterValidatorLocator(ApplicationContainer, ValidatorLocator);
+            RegisterPropertyValidatorRuleFactories(ApplicationContainer, PropertyValidatorRuleFactories);
+            RegisterObjectValidatorRuleFactories(ApplicationContainer, ObjectValidatorRuleFactories);
             ConfigureApplicationContainer(ApplicationContainer);
             _isInitialized = true;
         }

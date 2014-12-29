@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FerroJson.Bootstrapper;
 using Irony.Parsing;
 
 namespace FerroJson
@@ -28,7 +29,10 @@ namespace FerroJson
                 throw new ArgumentException(messages);
             }
 
-            var schema = JsonSchemaFactory.GetSchema(jsonSchemaAst);
+            var bootStrapper = BootstrapperLocator.Bootstrapper;
+            var jsonSchemaFactory = bootStrapper.GetJsonSchemaFactory();
+
+            var schema = jsonSchemaFactory.GetSchema(jsonSchemaAst);
             IEnumerable<string> errors;
             if (null != schema && !schema.TryValidate(jsonDocAst, out errors))
             {

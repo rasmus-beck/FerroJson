@@ -6,6 +6,14 @@ namespace FerroJson
 {
     public class JsonSchema : IJsonSchema
     {
+        public enum SchemaVersion
+        {
+            V1,
+            V2,
+            V3,
+            V4,
+        };
+
         private readonly SortedDictionary<string, IList<Func<object, bool>>> _schemaProperties;
         private readonly bool _allowAdditionalProperties;
         private readonly IList<string> _requiredProperties;

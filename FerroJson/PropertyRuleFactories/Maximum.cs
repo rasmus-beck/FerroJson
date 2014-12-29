@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Irony.Parsing;
 
-namespace FerroJson.JsonSchemaV4.RuleFactories
+namespace FerroJson.PropertyRuleFactories
 {
-    public class Maximum : IJsonSchemaV4ValidatorRuleFactory
+    public class Maximum : IPropertyValidatorRuleFactory
     {
         private const string PropertyName = "maximum";
+
+        public IList<JsonSchema.SchemaVersion> SupportedSchemaVersions { get {return new [] {JsonSchema.SchemaVersion.V4};} }
 
         public bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty)
         {

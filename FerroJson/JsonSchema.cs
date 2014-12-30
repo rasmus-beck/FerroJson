@@ -33,4 +33,10 @@ namespace FerroJson
             throw new NotImplementedException();
         }
     }
+
+    public class JsonProperty
+    {
+        public string ErrorMessageFormat { get; set; }
+        public IList<Func<object, bool>> ValidationRules { get; set; }
+    }
 }

@@ -36,7 +36,9 @@ namespace FerroJson
             //ToDo... check cache first
 
             var version = GetSchemaVersion(jsonSchemaAst.Root);
+            var propertyRuleFactories = _propertyRuleFactories.Where(x => x.SupportedSchemaVersions.Contains(version));
             var allowAdditionalProperties = GetAdditionalPropertiesAllowedFlag(jsonSchemaAst.Root);
+            
 
             var propertyRules = new SortedDictionary<string, IList<Func<object, bool>>>();
             //TODO: Next run through Json schema abstract syntax tree to build the property rules dictionary. 

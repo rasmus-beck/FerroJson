@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using FerroJson.ObjectRuleFactories;
+using FerroJson.ObjectTypeFactories;
 using FerroJson.PropertyRuleFactories;
 using Irony.Parsing;
 
@@ -12,7 +12,7 @@ namespace FerroJson
         IJsonSchema GetSchema(ParseTree jsonSchemaAst);
     }
 
-    public class JsonSchemaFactory : IJsonSchemaFactory
+    public class DefaultJsonSchemaFactory : IJsonSchemaFactory
     {
         private readonly Dictionary<string, JsonSchema.SchemaVersion> _schemaVersionMap = new Dictionary <string, JsonSchema.SchemaVersion>
         {
@@ -23,9 +23,9 @@ namespace FerroJson
         };
 
         private readonly IEnumerable<IPropertyValidatorRuleFactory> _propertyRuleFactories;
-        private readonly IEnumerable<IObjectValidatorRuleFactory> _objectRuleFactories;
+        private readonly IEnumerable<IObjectTypeFactory> _objectRuleFactories;
 
-        public JsonSchemaFactory(IEnumerable<IPropertyValidatorRuleFactory> propertyRuleFactories, IEnumerable<IObjectValidatorRuleFactory> objectRuleFactories)
+        public DefaultJsonSchemaFactory(IEnumerable<IPropertyValidatorRuleFactory> propertyRuleFactories, IEnumerable<IObjectTypeFactory> objectRuleFactories)
         {
             _propertyRuleFactories = propertyRuleFactories;
             _objectRuleFactories = objectRuleFactories;
@@ -35,18 +35,22 @@ namespace FerroJson
         {
             //ToDo... check cache first
 
-            var version = GetSchemaVersion(jsonSchemaAst.Root);
-            var propertyRuleFactories = _propertyRuleFactories.Where(x => x.SupportedSchemaVersions.Contains(version));
-            var allowAdditionalProperties = GetAdditionalPropertiesAllowedFlag(jsonSchemaAst.Root);
+            //var version = GetSchemaVersion(jsonSchemaAst.Root);
+            //var propertyRuleFactories = _propertyRuleFactories.Where(x => x.SupportedSchemaVersions.Contains(version));
+            //var allowAdditionalProperties = GetAdditionalPropertiesAllowedFlag(jsonSchemaAst.Root);
             
 
             var propertyRules = new SortedDictionary<string, IList<Func<object, bool>>>();
+
+            var rootObjectFactory = _objectRuleFactories.FirstOrDefault(f => f.BuildsObject(jsonSchemaAst.Root));
+            var rules = rootObjectFactory.BuildRules(jsonSchemaAst.Root);
+
             //TODO: Next run through Json schema abstract syntax tree to build the property rules dictionary. 
             //Find a suitable key based on location in document, this should also support arrays
 
             var requiredProperties = new string[]{};
 
-            return new JsonSchema(propertyRules, allowAdditionalProperties, requiredProperties);
+            return null;//new JsonSchema(propertyRules, allowAdditionalProperties, requiredProperties);
         }
 
         private JsonSchema.SchemaVersion GetSchemaVersion(ParseTreeNode rootNode)

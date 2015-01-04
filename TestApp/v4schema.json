@@ -1,12 +1,22 @@
 ﻿{
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "object",
-    "properties": {
-        "/": {}
-    },
-    "patternProperties": {
-        "^(/[^/]+)+$": {}
-    },
-    "additionalProperties": false,
-    "required": [ "/" ]
+  "$schema": "http://json-schema.org/draft-03/schema#",
+  "title": "Accounts collection schema",
+  "description": "A schema for persons age.",
+  "type": "object",
+  "properties": {
+    "age": {
+      "type": "number",
+      "description": "A persons age.",
+      "maximum": 20
+      }
+      ,
+        "tags": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        }
+  }
 }

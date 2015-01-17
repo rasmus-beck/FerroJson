@@ -1,4 +1,6 @@
-﻿using FerroJson.PropertyRuleFactories;
+﻿using System.Collections;
+using System.Collections.Generic;
+using FerroJson.PropertyRuleFactories;
 using Irony.Parsing;
 using NUnit.Framework;
 using Rhino.Mocks;
@@ -15,7 +17,7 @@ namespace FerroJson.Tests.RuleFactoryTests
             object value = 99;
             string name = "maximum";
 
-            var objectNode = BuildObjectNode(name, value);
+            var objectNode = BuildObjectNode(new Dictionary<string, object> { { name, value } });
 
             var maximumRuleFactory = new Maximum();
             var canCreate = maximumRuleFactory.CanCreateValidatorRule(objectNode);
@@ -23,21 +25,41 @@ namespace FerroJson.Tests.RuleFactoryTests
             Assert.That(canCreate, Is.True);
         }
 
-        private static ParseTreeNode BuildObjectNode(string name, object value)
+        [Test]
+        public void MaximumProperty_DoesNotExist_CannotCreateValidatorRule()
         {
-            var terminal = MockRepository.Mock<Terminal>("Property");
 
-            var propertyNameToken = MockRepository.Mock<Token>(terminal, null, null, name);
-            var propertyValueToken = MockRepository.Mock<Token>(terminal, null, null, value);
-            var propertyToken = MockRepository.Mock<Token>(terminal, null, null, "Property");
-            var propertyNameNode = MockRepository.Mock<ParseTreeNode>(propertyNameToken);
-            var propertyValueNode = MockRepository.Mock<ParseTreeNode>(propertyValueToken);
+            object value = 99;
+            string name = "dummy";
 
-            var propertyNode = MockRepository.Mock<ParseTreeNode>(propertyToken);
+            var objectNode = BuildObjectNode(new Dictionary<string, object> { { name, value } });
+
+            var maximumRuleFactory = new Maximum();
+            var canCreate = maximumRuleFactory.CanCreateValidatorRule(objectNode);
+
+            Assert.That(canCreate, Is.False);
+        }
+
+        private static ParseTreeNode BuildObjectNode(IDictionary<string, object> properties)
+        {
+            var terminal = MockRepository.Mock<Terminal>("dummy");
+            var propertyToken = MockRepository.Mock<Token>(terminal, null, null, "dummy");
             var objectNode = MockRepository.Mock<ParseTreeNode>(propertyToken);
-            propertyNode.ChildNodes.Add(propertyNameNode);
-            propertyNode.ChildNodes.Add(propertyValueNode);
-            objectNode.ChildNodes.Add(propertyNode);
+
+            foreach (var property in properties)
+            {
+                var propertyNameToken = MockRepository.Mock<Token>(terminal, null, null, property.Key);
+                var propertyValueToken = MockRepository.Mock<Token>(terminal, null, null, property.Value);
+                var propertyNameNode = MockRepository.Mock<ParseTreeNode>(propertyNameToken);
+                var propertyValueNode = MockRepository.Mock<ParseTreeNode>(propertyValueToken);
+
+                var propertyNode = MockRepository.Mock<ParseTreeNode>(propertyToken);
+                propertyNode.ChildNodes.Add(propertyNameNode);
+                propertyNode.ChildNodes.Add(propertyValueNode);
+
+                objectNode.ChildNodes.Add(propertyNode);
+            }
+
             return objectNode;
         }
     }

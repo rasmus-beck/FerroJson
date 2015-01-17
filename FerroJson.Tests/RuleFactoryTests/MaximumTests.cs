@@ -26,6 +26,21 @@ namespace FerroJson.Tests.RuleFactoryTests
         }
 
         [Test]
+        public void MaximumProperty_ExistsWithOthers_CanCreateValidatorRule()
+        {
+
+            object value = 99;
+            string name = "maximum";
+
+            var objectNode = BuildObjectNode(new Dictionary<string, object> { { name, value }, { "dummy", "dummy" } });
+
+            var maximumRuleFactory = new Maximum();
+            var canCreate = maximumRuleFactory.CanCreateValidatorRule(objectNode);
+
+            Assert.That(canCreate, Is.True);
+        }
+
+        [Test]
         public void MaximumProperty_DoesNotExist_CannotCreateValidatorRule()
         {
 

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using FerroJson.PropertyRuleFactories;
 using Irony.Parsing;
 using NUnit.Framework;
@@ -99,6 +98,44 @@ namespace FerroJson.Tests.RuleFactoryTests
             Assert.That(result, Is.False);
         }
 
+        [Test]
+        public void ExclusiveMaximumProperty_Exists_Validates()
+        {
+            var objectNode = BuildObjectNode(new Dictionary<string, object> { { "maximum", 99 }, { "exclusiveMaximum", true } });
+
+            var maximumRuleFactory = new Maximum();
+            var canCreate = maximumRuleFactory.CanCreateValidatorRule(objectNode);
+
+            Assert.That(canCreate, Is.True);
+
+            var rule = maximumRuleFactory.GetValidatorRule(objectNode);
+
+            Assert.That(rule, Is.Not.Null);
+            var property = BuildPropertyNode("age", 98);
+            var result = rule.Invoke(property);
+
+            Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public void ExclusiveMaximumProperty_Exists_DoesNotValidate()
+        {
+            var objectNode = BuildObjectNode(new Dictionary<string, object> { { "maximum", 99 }, { "exclusiveMaximum", true } });
+
+            var maximumRuleFactory = new Maximum();
+            var canCreate = maximumRuleFactory.CanCreateValidatorRule(objectNode);
+
+            Assert.That(canCreate, Is.True);
+
+            var rule = maximumRuleFactory.GetValidatorRule(objectNode);
+
+            Assert.That(rule, Is.Not.Null);
+            var property = BuildPropertyNode("age", 99);
+            var result = rule.Invoke(property);
+
+            Assert.That(result, Is.False);
+        }
+
         private static ParseTreeNode BuildPropertyNode(string key, object value)
         {
             var terminal = MockRepository.Mock<Terminal>("dummy");
@@ -124,15 +161,7 @@ namespace FerroJson.Tests.RuleFactoryTests
 
             foreach (var property in properties)
             {
-                var propertyNameToken = MockRepository.Mock<Token>(terminal, null, null, property.Key);
-                var propertyValueToken = MockRepository.Mock<Token>(terminal, null, null, property.Value);
-                var propertyNameNode = MockRepository.Mock<ParseTreeNode>(propertyNameToken);
-                var propertyValueNode = MockRepository.Mock<ParseTreeNode>(propertyValueToken);
-
-                var propertyNode = MockRepository.Mock<ParseTreeNode>(propertyToken);
-                propertyNode.ChildNodes.Add(propertyNameNode);
-                propertyNode.ChildNodes.Add(propertyValueNode);
-
+                var propertyNode = BuildPropertyNode(property.Key, property.Value);
                 objectNode.ChildNodes.Add(propertyNode);
             }
 

@@ -107,6 +107,31 @@ namespace FerroJson.Tests.RuleFactoryTests
         }
 
         [Test]
+        public void MaximumProperty_ExactValue_Validates()
+        {
+            //Given
+            object value = 99;
+            const string name = "maximum";
+            var objectNode = ParseTreeNodeFixture.BuildObjectNode(new Dictionary<string, object> { { name, value } });
+
+            var maximumRuleFactory = new Maximum();
+            var canCreate = maximumRuleFactory.CanCreateValidatorRule(objectNode);
+
+            Assert.That(canCreate, Is.True);
+
+            var rule = maximumRuleFactory.GetValidatorRule(objectNode);
+
+            Assert.That(rule, Is.Not.Null);
+            
+            //When
+            var property = ParseTreeNodeFixture.BuildPropertyNode("age", 99);
+            var result = rule.Invoke(property);
+
+            //Then
+            Assert.That(result, Is.True);
+        }
+
+        [Test]
         public void ExclusiveMaximumProperty_Exists_Validates()
         {
             //Given
@@ -126,6 +151,28 @@ namespace FerroJson.Tests.RuleFactoryTests
 
             //Then
             Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public void ExclusiveMaximumProperty_ExactValue_DoesNotValidate()
+        {
+            //Given
+            var objectNode = ParseTreeNodeFixture.BuildObjectNode(new Dictionary<string, object> { { "maximum", 99 }, { "exclusiveMaximum", true } });
+            var maximumRuleFactory = new Maximum();
+            var canCreate = maximumRuleFactory.CanCreateValidatorRule(objectNode);
+
+            Assert.That(canCreate, Is.True);
+
+            var rule = maximumRuleFactory.GetValidatorRule(objectNode);
+
+            Assert.That(rule, Is.Not.Null);
+
+            //When
+            var property = ParseTreeNodeFixture.BuildPropertyNode("age", 99);
+            var result = rule.Invoke(property);
+
+            //Then
+            Assert.That(result, Is.False);
         }
 
         [Test]

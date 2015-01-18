@@ -14,19 +14,19 @@ namespace FerroJson.PropertyRuleFactories
 
         public bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty)
         {
+            //Are we dealing with an integer or a number, if not then we can't create a rule for this.
+            var type = jsonSchemaProperty.GetPropertyValueFromObject<string>("type");
+
+            if (String.IsNullOrEmpty(type) || !(type.ToLowerInvariant().Equals("integer") || type.ToLowerInvariant().Equals("number")))
+            {
+                return false;
+            }
+
             return jsonSchemaProperty.HasProperty(PropertyName);
         }
 
         public Func<ParseTreeNode, bool> GetValidatorRule(ParseTreeNode jsonSchemaProperty)
         {
-            //Are we dealing with an integer or a number, if not then raise an error.
-            var type = jsonSchemaProperty.GetPropertyValueFromObject<string>("type");
-
-            if (!String.IsNullOrEmpty(type) && !(type.ToLowerInvariant().Equals("integer") || type.ToLowerInvariant().Equals("number")))
-            {
-                throw new Exception("A maximum can only be defined on properties of type 'number' or 'integer'.");
-            }
-            
             //Then get the maximum value allowed according to the schema
             var maximumValue = jsonSchemaProperty.GetPropertyValueFromObject<float>(PropertyName);
             bool exclusiveMaximum;

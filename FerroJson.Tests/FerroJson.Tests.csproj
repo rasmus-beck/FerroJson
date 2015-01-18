@@ -52,7 +52,8 @@
   <ItemGroup>
     <Compile Include="Fixtures\ParseTreeNodeFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RuleFactoryTests\MaximumTests.cs" />
+    <Compile Include="PropertyRuleFactories\MaximumTests.cs" />
+    <Compile Include="PropertyRuleFactories\MinimumTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

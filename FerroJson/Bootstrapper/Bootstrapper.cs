@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using FerroJson.ObjectTypeFactories;
-using FerroJson.PropertyRuleFactories;
+using FerroJson.RuleFactories;
 
 namespace FerroJson.Bootstrapper
 {
@@ -9,7 +8,7 @@ namespace FerroJson.Bootstrapper
     {
         IJsonSchemaFactory GetJsonSchemaFactory();
 
-        IObjectTypeFactoryLocator GetObjectTypeFactoryLocator();
+        IValidatorRuleFactoryLocator GetValidatorRuleFactoryLocator();
     }
 
     public abstract class Bootstrapper<TContainer> : IBootstrapper
@@ -26,22 +25,20 @@ namespace FerroJson.Bootstrapper
             return GetJsonSchemaFactory(ApplicationContainer);
         }
 
-        public IObjectTypeFactoryLocator GetObjectTypeFactoryLocator()
+        public IValidatorRuleFactoryLocator GetValidatorRuleFactoryLocator()
         {
-            return GetApplicationContainer(ApplicationContainer);
+            return GetValidatorRuleFactoryLocator(ApplicationContainer);
         }
 
         protected TContainer ApplicationContainer { get; set; }
 
         protected abstract TContainer GetApplicationContainer();
 
-        protected abstract IObjectTypeFactoryLocator GetApplicationContainer(TContainer container);
+        protected abstract IValidatorRuleFactoryLocator GetValidatorRuleFactoryLocator(TContainer container);
 
-        protected abstract void RegisterPropertyValidatorRuleFactories(TContainer container, IEnumerable<Type> propertyValidatorRuleFactoriesTypes);
-        
-        protected abstract void RegisterObjectValidatorRuleFactories(TContainer container, IEnumerable<Type> objectValidatorRuleFactoriesTypes);
+        protected abstract void RegisterValidatorRuleFactories(TContainer container, IEnumerable<Type> validatorRuleFactoriesTypes);
 
-        protected abstract void RegisterObjectTypeFactoryLocator(TContainer container, Type objectTypeFactoryLocatorType);
+        protected abstract void RegisterValidatorRuleFactoryLocator(TContainer container, Type objectTypeFactoryLocatorType);
 
         protected abstract IJsonSchemaFactory GetJsonSchemaFactory(TContainer container);
 
@@ -49,14 +46,9 @@ namespace FerroJson.Bootstrapper
         
         protected virtual void ConfigureApplicationContainer(TContainer container) {}
 
-        protected virtual IEnumerable<Type> PropertyValidatorRuleFactories
+        protected virtual IEnumerable<Type> ValidatorRuleFactories
         {
-            get { return AppDomainScanner.Types<IPropertyValidatorRuleFactory>(); }
-        }
-
-        protected virtual IEnumerable<Type> ObjectValidatorRuleFactories
-        {
-            get { return AppDomainScanner.Types<IObjectTypeFactory>(); }
+            get { return AppDomainScanner.Types<IValidatorRuleFactory>(); }
         }
 
         protected virtual Type JsonSchemaFactory
@@ -64,17 +56,16 @@ namespace FerroJson.Bootstrapper
             get { return typeof(DefaultJsonSchemaFactory); }
         }
 
-        protected virtual Type ObjectTypeFactoryLocator
+        protected virtual Type ValidatorRuleFactoryLocator
         {
-            get { return typeof(DefaultObjectTypeFactoryLocator); }
+            get { return typeof(DefaultValidatorRuleFactoryLocator); }
         }
 
         private void Initialize()
         {
             ApplicationContainer = GetApplicationContainer();
-            RegisterPropertyValidatorRuleFactories(ApplicationContainer, PropertyValidatorRuleFactories);
-            RegisterObjectValidatorRuleFactories(ApplicationContainer, ObjectValidatorRuleFactories);
-            RegisterObjectTypeFactoryLocator(ApplicationContainer, ObjectTypeFactoryLocator);
+            RegisterValidatorRuleFactories(ApplicationContainer, ValidatorRuleFactories);
+            RegisterValidatorRuleFactoryLocator(ApplicationContainer, ValidatorRuleFactoryLocator);
             RegisterJsonSchemaFactory(ApplicationContainer, JsonSchemaFactory);
             
             ConfigureApplicationContainer(ApplicationContainer);

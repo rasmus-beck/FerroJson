@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using Irony.Parsing;
 
-namespace FerroJson.PropertyRuleFactories
+namespace FerroJson.RuleFactories
 {
-    public class Minimum : IPropertyValidatorRuleFactory
+    public class Minimum : IValidatorRuleFactory
     {
         public IList<JsonSchema.SchemaVersion> SupportedSchemaVersions { get; private set; }
         public bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty)
         {
-            throw new NotImplementedException();
+            return false;
         }
 
-        public Func<ParseTreeNode, bool> GetValidatorRule(ParseTreeNode jsonSchemaProperty)
+        public IList<Func<ParseTreeNode, bool>> GetValidatorRule(ParseTreeNode jsonSchemaProperty)
         {
             throw new NotImplementedException();
         }

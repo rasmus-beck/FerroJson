@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using FerroJson.ObjectTypeFactories;
-using FerroJson.PropertyRuleFactories;
+using FerroJson.RuleFactories;
 using Irony.Parsing;
 
 namespace FerroJson
@@ -22,13 +21,11 @@ namespace FerroJson
             {"http://json-schema.org/draft-04/schema#", JsonSchema.SchemaVersion.V4}
         };
 
-        private readonly IEnumerable<IPropertyValidatorRuleFactory> _propertyRuleFactories;
-        private readonly IEnumerable<IObjectTypeFactory> _objectRuleFactories;
+        private readonly IEnumerable<IValidatorRuleFactory> _propertyRuleFactories;
 
-        public DefaultJsonSchemaFactory(IEnumerable<IPropertyValidatorRuleFactory> propertyRuleFactories, IEnumerable<IObjectTypeFactory> objectRuleFactories)
+        public DefaultJsonSchemaFactory(IEnumerable<IValidatorRuleFactory> propertyRuleFactories)
         {
             _propertyRuleFactories = propertyRuleFactories;
-            _objectRuleFactories = objectRuleFactories;
         }
 
         public IJsonSchema GetSchema(ParseTree jsonSchemaAst)
@@ -42,11 +39,10 @@ namespace FerroJson
 
             var propertyRules = new SortedDictionary<string, IList<Func<object, bool>>>();
 
-            var rootObjectFactory = _objectRuleFactories.FirstOrDefault(f => f.BuildsObject(jsonSchemaAst.Root));
-            var rules = rootObjectFactory.BuildRules(jsonSchemaAst.Root);
-
-            //TODO: Next run through Json schema abstract syntax tree to build the property rules dictionary. 
-            //Find a suitable key based on location in document, this should also support arrays
+            IList<Func<ParseTreeNode, bool>> rules;
+            var rootFactory = _propertyRuleFactories.FirstOrDefault(f => f.CanCreateValidatorRule(jsonSchemaAst.Root));
+            if (null != rootFactory)
+                rules = rootFactory.GetValidatorRule(jsonSchemaAst.Root);
 
             var requiredProperties = new string[]{};
 

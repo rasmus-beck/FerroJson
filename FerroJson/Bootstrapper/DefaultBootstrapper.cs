@@ -3,8 +3,7 @@
     using System;
     using System.Collections.Generic;
     using TinyIoC;
-    using PropertyRuleFactories;
-    using ObjectTypeFactories;
+    using RuleFactories;
 
     public class DefaultBootstrapper : Bootstrapper<TinyIoCContainer>
     {
@@ -13,24 +12,19 @@
             return new TinyIoCContainer();
         }
 
-        protected override IObjectTypeFactoryLocator GetApplicationContainer(TinyIoCContainer container)
+        protected override IValidatorRuleFactoryLocator GetValidatorRuleFactoryLocator(TinyIoCContainer container)
         {
-            return container.Resolve<IObjectTypeFactoryLocator>();
+            return container.Resolve<IValidatorRuleFactoryLocator>();
         }
 
-        protected override void RegisterPropertyValidatorRuleFactories(TinyIoCContainer container, IEnumerable<Type> propertyValidatorRuleFactoriesTypes)
+        protected override void RegisterValidatorRuleFactories(TinyIoCContainer container, IEnumerable<Type> validatorRuleFactoriesTypes)
         {
-            container.RegisterMultiple(typeof(IPropertyValidatorRuleFactory), propertyValidatorRuleFactoriesTypes);
+            container.RegisterMultiple(typeof(IValidatorRuleFactory), validatorRuleFactoriesTypes);
         }
 
-        protected override void RegisterObjectValidatorRuleFactories(TinyIoCContainer container, IEnumerable<Type> objectValidatorRuleFactoriesTypes)
+        protected override void RegisterValidatorRuleFactoryLocator(TinyIoCContainer container, Type objectTypeFactoryLocatorType)
         {
-            container.RegisterMultiple(typeof(IObjectTypeFactory), objectValidatorRuleFactoriesTypes);
-        }
-
-        protected override void RegisterObjectTypeFactoryLocator(TinyIoCContainer container, Type objectTypeFactoryLocatorType)
-        {
-            container.Register(typeof(IObjectTypeFactoryLocator), objectTypeFactoryLocatorType).AsSingleton();
+            container.Register(typeof(IValidatorRuleFactoryLocator), objectTypeFactoryLocatorType).AsSingleton();
         }
 
         protected override IJsonSchemaFactory GetJsonSchemaFactory(TinyIoCContainer container)

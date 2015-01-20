@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using FerroJson.Extensions;
 using Irony.Parsing;
 
-namespace FerroJson.PropertyRuleFactories
+namespace FerroJson.RuleFactories
 {
-    public class Maximum : IPropertyValidatorRuleFactory
+    public class Maximum : IValidatorRuleFactory
     {
         private const string PropertyName = "maximum";
         private const string ExclusiveMaxPropertyName = "exclusiveMaximum";
@@ -25,7 +25,7 @@ namespace FerroJson.PropertyRuleFactories
             return jsonSchemaProperty.HasProperty(PropertyName);
         }
 
-        public Func<ParseTreeNode, bool> GetValidatorRule(ParseTreeNode jsonSchemaProperty)
+        public IList<Func<ParseTreeNode, bool>> GetValidatorRule(ParseTreeNode jsonSchemaProperty)
         {
             //Then get the maximum value allowed according to the schema
             var maximumValue = jsonSchemaProperty.GetPropertyValueFromObject<float>(PropertyName);
@@ -33,7 +33,7 @@ namespace FerroJson.PropertyRuleFactories
             jsonSchemaProperty.TryGetPropertyValueFromObject(ExclusiveMaxPropertyName, out exclusiveMaximum);
 
             //Return validation rule
-            return property =>
+            Func<ParseTreeNode, bool> rule = property =>
             {
                 float value;
                 if (!property.TryGetValue(out value))
@@ -42,6 +42,8 @@ namespace FerroJson.PropertyRuleFactories
                 }
                 return exclusiveMaximum ? value < maximumValue : value <= maximumValue;
             };
+
+            return new[] {rule};
         }
     }
 }

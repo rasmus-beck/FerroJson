@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using FerroJson.PropertyRuleFactories;
+using System.Linq;
+using FerroJson.RuleFactories;
 using FerroJson.Tests.Fixtures;
 using NUnit.Framework;
 
@@ -75,7 +76,7 @@ namespace FerroJson.Tests.PropertyRuleFactories
             
             //When
             var property = ParseTreeNodeFixture.BuildPropertyNode("age", 50);
-            var result = rule.Invoke(property);
+            var result = rule.First().Invoke(property);
 
             //Then
             Assert.That(result, Is.True);
@@ -100,7 +101,7 @@ namespace FerroJson.Tests.PropertyRuleFactories
             
             //When
             var property = ParseTreeNodeFixture.BuildPropertyNode("age", 500);
-            var result = rule.Invoke(property);
+            var result = rule.First().Invoke(property);
 
             //Then
             Assert.That(result, Is.False);
@@ -125,7 +126,7 @@ namespace FerroJson.Tests.PropertyRuleFactories
             
             //When
             var property = ParseTreeNodeFixture.BuildPropertyNode("age", 99);
-            var result = rule.Invoke(property);
+            var result = rule.First().Invoke(property);
 
             //Then
             Assert.That(result, Is.True);
@@ -147,7 +148,7 @@ namespace FerroJson.Tests.PropertyRuleFactories
 
             //When
             var property = ParseTreeNodeFixture.BuildPropertyNode("age", 98);
-            var result = rule.Invoke(property);
+            var result = rule.First().Invoke(property);
 
             //Then
             Assert.That(result, Is.True);
@@ -169,7 +170,7 @@ namespace FerroJson.Tests.PropertyRuleFactories
 
             //When
             var property = ParseTreeNodeFixture.BuildPropertyNode("age", 99);
-            var result = rule.Invoke(property);
+            var result = rule.First().Invoke(property);
 
             //Then
             Assert.That(result, Is.False);
@@ -191,7 +192,7 @@ namespace FerroJson.Tests.PropertyRuleFactories
 
             //When
             var property = ParseTreeNodeFixture.BuildPropertyNode("age", 99);
-            var result = rule.Invoke(property);
+            var result = rule.First().Invoke(property);
 
             //Then
             Assert.That(result, Is.False);

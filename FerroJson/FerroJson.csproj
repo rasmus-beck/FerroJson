@@ -48,6 +48,7 @@
     <Compile Include="Bootstrapper\DefaultBootstrapper.cs" />
     <Compile Include="Extensions\ParseTreeNodeExtensions.cs" />
     <Compile Include="IJsonSchema.cs" />
+    <Compile Include="IPropertyValidationResult.cs" />
     <Compile Include="JsonProperty.cs" />
     <Compile Include="DefaultJsonSchemaFactory.cs" />
     <Compile Include="JsonGrammar.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="RuleFactories\Maximum.cs" />
     <Compile Include="RuleFactories\Minimum.cs" />
     <Compile Include="RuleFactories\ObjectType.cs" />
+    <Compile Include="RuleFactories\Properties.cs" />
     <Compile Include="TinyIoC.cs" />
     <Compile Include="Validator.cs" />
   </ItemGroup>

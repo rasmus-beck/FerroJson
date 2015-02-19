@@ -39,7 +39,7 @@ namespace FerroJson
 
             var propertyRules = new SortedDictionary<string, IList<Func<object, bool>>>();
 
-            IList<Func<ParseTreeNode, bool>> rules;
+            IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> rules;
             var rootFactory = _propertyRuleFactories.FirstOrDefault(f => f.CanCreateValidatorRule(jsonSchemaAst.Root));
             if (null != rootFactory)
                 rules = rootFactory.GetValidatorRule(jsonSchemaAst.Root);

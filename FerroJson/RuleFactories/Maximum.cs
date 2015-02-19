@@ -14,36 +14,55 @@ namespace FerroJson.RuleFactories
 
         public bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty)
         {
+            //First get the definition 
+            var propertyDefinitioNode = jsonSchemaProperty.ChildNodes[1]; 
+            
             //Are we dealing with an integer or a number, if not then we can't create a rule for this.
-            var type = jsonSchemaProperty.GetPropertyValueFromObject<string>("type");
-
-            if (String.IsNullOrEmpty(type) || !(type.ToLowerInvariant().Equals("integer") || type.ToLowerInvariant().Equals("number")))
+            string type;
+            if (propertyDefinitioNode.TryGetPropertyValueFromObject("type", out type))
             {
-                return false;
+                if (String.IsNullOrEmpty(type) || !(type.ToLowerInvariant().Equals("integer") || type.ToLowerInvariant().Equals("number")))
+                {
+                    return false;
+                }
             }
-
-            return jsonSchemaProperty.HasProperty(PropertyName);
+            
+            return propertyDefinitioNode.HasProperty(PropertyName);
         }
 
-        public IList<Func<ParseTreeNode, bool>> GetValidatorRule(ParseTreeNode jsonSchemaProperty)
+        public IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetValidatorRule(ParseTreeNode jsonSchemaProperty)
         {
+            //First get the definition 
+            var propertyDefinitioNode = jsonSchemaProperty.ChildNodes[1]; 
+            var propertyName = jsonSchemaProperty.GetPropertyName();
+
             //Then get the maximum value allowed according to the schema
-            var maximumValue = jsonSchemaProperty.GetPropertyValueFromObject<float>(PropertyName);
+            var maximumValue = propertyDefinitioNode.GetPropertyValueFromObject<float>(PropertyName);
             bool exclusiveMaximum;
-            jsonSchemaProperty.TryGetPropertyValueFromObject(ExclusiveMaxPropertyName, out exclusiveMaximum);
+            propertyDefinitioNode.TryGetPropertyValueFromObject(ExclusiveMaxPropertyName, out exclusiveMaximum);
 
             //Return validation rule
-            Func<ParseTreeNode, bool> rule = property =>
+            Func<ParseTreeNode, IPropertyValidationResult> rule = property =>
             {
                 float value;
                 if (!property.TryGetValue(out value))
                 {
-                    return false;
+                    return new PropertyValidationResult()
+                    {
+                        Error = "Cannot validate maximum. Input value is not numeric."
+                    };
                 }
-                return exclusiveMaximum ? value < maximumValue : value <= maximumValue;
+                if (exclusiveMaximum ? value < maximumValue : value <= maximumValue)
+                {
+                    return new PropertyValidationResult()
+                    {
+                        Error = String.Format("Input value '{0}' is greater than maximumValue {1}.", value, maximumValue)
+                    };
+                }
+                return null;
             };
 
-            return new[] {rule};
+            return new Dictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> { { propertyName, new[] { rule } } };
         }
     }
 }

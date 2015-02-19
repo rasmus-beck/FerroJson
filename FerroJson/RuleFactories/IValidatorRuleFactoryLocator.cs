@@ -6,7 +6,7 @@ namespace FerroJson.RuleFactories
 {
     public interface IValidatorRuleFactoryLocator
     {
-        IValidatorRuleFactory Locate(ParseTreeNode node);
+        IEnumerable<IValidatorRuleFactory> Locate(ParseTreeNode node);
     }
 
     public class DefaultValidatorRuleFactoryLocator : IValidatorRuleFactoryLocator
@@ -18,9 +18,9 @@ namespace FerroJson.RuleFactories
             _validatorRuleFactories = validatorRuleFactories;
         }
 
-        public IValidatorRuleFactory Locate(ParseTreeNode node)
+        public IEnumerable<IValidatorRuleFactory> Locate(ParseTreeNode node)
         {
-            return _validatorRuleFactories.FirstOrDefault(f => f.CanCreateValidatorRule(node));
+            return _validatorRuleFactories.Where(f => f.CanCreateValidatorRule(node));
         }
     }
 }

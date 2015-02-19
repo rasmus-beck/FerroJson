@@ -13,13 +13,13 @@ namespace FerroJson.Extensions
 
         public static T GetPropertyValueFromObject<T>(this ParseTreeNode node, string propertyName)
         {
-            var propertyNode = node.ChildNodes.FirstOrDefault(x => x.ChildNodes.Any(y => y.Token.ValueString == propertyName));
+            var propertyNode = node.ChildNodes.FirstOrDefault(x => x.ChildNodes.Any(y => y.Token != null && y.Token.ValueString == propertyName));
             return GetValue<T>(propertyNode);
         }
 
         public static bool TryGetPropertyValueFromObject<T>(this ParseTreeNode node, string propertyName, out T value)
         {
-            var propertyNode = node.ChildNodes.FirstOrDefault(x => x.ChildNodes.Any(y => y.Token.ValueString == propertyName));
+            var propertyNode = node.ChildNodes.FirstOrDefault(x => x.ChildNodes.Any(y => y.Token != null && y.Token.ValueString == propertyName));
             return TryGetValue(propertyNode, out value);
         }
 
@@ -42,12 +42,37 @@ namespace FerroJson.Extensions
                 return false;
             }
         }
+
+        public static bool TryGetPropertyName(this ParseTreeNode node, out string value)
+        {
+            if (null == node || 2 != node.ChildNodes.Count)
+            {
+                value = null;
+                return false;
+            }
+
+            try
+            {
+                value = GetPropertyName(node);
+                return true;
+            }
+            catch
+            {
+                value = null;
+                return false;
+            }
+        }
         
         public static T GetValue<T>(this ParseTreeNode node)
         {
             var value = node.ChildNodes[1].Token.ValueString;
             var typeConverter = TypeDescriptor.GetConverter(typeof(T));
             return (T)typeConverter.ConvertFromString(value);
+        }
+
+        public static string GetPropertyName(this ParseTreeNode node)
+        {
+            return node.ChildNodes[0].Token.ValueString;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace FerroJson.RuleFactories
             return false;
         }
 
-        public IList<Func<ParseTreeNode, bool>> GetValidatorRule(ParseTreeNode jsonSchemaProperty)
+        public IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetValidatorRule(ParseTreeNode jsonSchemaProperty)
         {
             throw new NotImplementedException();
         }

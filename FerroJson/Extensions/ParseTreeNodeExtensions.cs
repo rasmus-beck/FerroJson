@@ -11,6 +11,12 @@ namespace FerroJson.Extensions
             return node.ChildNodes.SelectMany(x => x.ChildNodes).Any(y => null != y.Token && y.Token.ValueString == propertyName);
         }
 
+        public static ParseTreeNode GetPropertyValueNodeFromObject(this ParseTreeNode node, string propertyName)
+        {
+            var propertyNode = node.ChildNodes.FirstOrDefault(x => x.ChildNodes.Any(y => y.Token != null && y.Token.ValueString == propertyName));
+            return propertyNode != null && propertyNode.ChildNodes.Count() == 2 ? propertyNode.ChildNodes[1] : null; 
+        }
+
         public static T GetPropertyValueFromObject<T>(this ParseTreeNode node, string propertyName)
         {
             var propertyNode = node.ChildNodes.FirstOrDefault(x => x.ChildNodes.Any(y => y.Token != null && y.Token.ValueString == propertyName));

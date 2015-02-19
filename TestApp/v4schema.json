@@ -19,6 +19,22 @@
           "maximum": 200
         }
       }
+    },
+    "contacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "A persons home address.",
+        "properties": {
+          "streetNumber": {
+            "type": "number",
+            "description": "A persons age.",
+            "maximum": 200
+          }
+        }
+      },
+      "minItems": 1,
+      "uniqueItems": true
     }
   }
 }

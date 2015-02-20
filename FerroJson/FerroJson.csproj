@@ -35,6 +35,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -48,6 +49,7 @@
     <Compile Include="Bootstrapper\DefaultBootstrapper.cs" />
     <Compile Include="Extensions\ParseTreeNodeExtensions.cs" />
     <Compile Include="IJsonSchema.cs" />
+    <Compile Include="IJsonSchemaCache.cs" />
     <Compile Include="IPropertyValidationResult.cs" />
     <Compile Include="JsonProperty.cs" />
     <Compile Include="DefaultJsonSchemaFactory.cs" />

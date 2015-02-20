@@ -8,7 +8,7 @@ namespace FerroJson
 {
     public interface IJsonSchemaFactory
     {
-        IJsonSchema GetSchema(ParseTree jsonSchemaAst);
+        IJsonSchema GetSchema(ParseTree jsonSchemaAst, string schemaHash);
     }
 
     public class DefaultJsonSchemaFactory : IJsonSchemaFactory
@@ -22,31 +22,35 @@ namespace FerroJson
         };
 
         private readonly IEnumerable<IValidatorRuleFactory> _propertyRuleFactories;
+        private readonly IJsonSchemaCacheProvider _cache;
 
-        public DefaultJsonSchemaFactory(IEnumerable<IValidatorRuleFactory> propertyRuleFactories)
+        public DefaultJsonSchemaFactory(IEnumerable<IValidatorRuleFactory> propertyRuleFactories, IJsonSchemaCacheProvider cache)
         {
             _propertyRuleFactories = propertyRuleFactories;
+            _cache = cache;
         }
 
-        public IJsonSchema GetSchema(ParseTree jsonSchemaAst)
+        public IJsonSchema GetSchema(ParseTree jsonSchemaAst, string schemaHash)
         {
-            //ToDo... check cache first
+            var schema = _cache.Get(schemaHash);
+            if (null != schema)
+                return schema;
 
             //var version = GetSchemaVersion(jsonSchemaAst.Root);
             //var propertyRuleFactories = _propertyRuleFactories.Where(x => x.SupportedSchemaVersions.Contains(version));
-            //var allowAdditionalProperties = GetAdditionalPropertiesAllowedFlag(jsonSchemaAst.Root);
-            
-
-            var propertyRules = new SortedDictionary<string, IList<Func<object, bool>>>();
-
-            IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> rules;
+            var allowAdditionalProperties = GetAdditionalPropertiesAllowedFlag(jsonSchemaAst.Root);
+           
+            IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> rules = new Dictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>>();
             var rootFactory = _propertyRuleFactories.FirstOrDefault(f => f.CanCreateValidatorRule(jsonSchemaAst.Root));
             if (null != rootFactory)
                 rules = rootFactory.GetValidatorRules(jsonSchemaAst.Root);
 
             var requiredProperties = new string[]{};
 
-            return null;//new JsonSchema(propertyRules, allowAdditionalProperties, requiredProperties);
+            schema = new JsonSchema(rules, allowAdditionalProperties, requiredProperties);
+            _cache.Set(schemaHash, schema);
+
+            return schema;
         }
 
         private JsonSchema.SchemaVersion GetSchemaVersion(ParseTreeNode rootNode)
@@ -65,6 +69,8 @@ namespace FerroJson
 
         private bool GetAdditionalPropertiesAllowedFlag(ParseTreeNode rootNode)
         {
+            return false;
+            /*
             var additionalPropertiesProperty = rootNode.ChildNodes.FirstOrDefault(x => x.ChildNodes.Any(y => y.Token.ValueString == "additionalProperties"));
 
             if (null == additionalPropertiesProperty || additionalPropertiesProperty.ChildNodes.Count != 2)
@@ -81,6 +87,7 @@ namespace FerroJson
             }
 
             return allowAdditionalProperties;
+            */
         }
     }
 }

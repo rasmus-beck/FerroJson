@@ -14,13 +14,13 @@ namespace FerroJson
             V4,
         };
 
-        private readonly SortedDictionary<string, IList<Func<object, bool>>> _schemaProperties;
+        private readonly IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> _schemaRules;
         private readonly bool _allowAdditionalProperties;
         private readonly IList<string> _requiredProperties;
 
-        public JsonSchema(SortedDictionary<string, IList<Func<object, bool>>> schemaProperties, bool allowAdditionalProperties, IList<string> requiredProperties)
+        public JsonSchema(IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> schemaRules, bool allowAdditionalProperties, IList<string> requiredProperties)
         {
-            _schemaProperties = schemaProperties;
+            _schemaRules = schemaRules;
             _allowAdditionalProperties = allowAdditionalProperties;
             _requiredProperties = requiredProperties;
         }

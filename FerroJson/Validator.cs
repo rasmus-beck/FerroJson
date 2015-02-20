@@ -32,7 +32,11 @@ namespace FerroJson
             var bootStrapper = BootstrapperLocator.Bootstrapper;
             var jsonSchemaFactory = bootStrapper.GetJsonSchemaFactory();
 
-            var schema = jsonSchemaFactory.GetSchema(jsonSchemaAst);
+            var schemaHash = jsonSchema.GetHashCode().ToString();
+
+            var schema = jsonSchemaFactory.GetSchema(jsonSchemaAst, schemaHash);
+            schema = jsonSchemaFactory.GetSchema(jsonSchemaAst, schemaHash);
+
             errors = new List<string>();
             return null == schema || schema.TryValidate(jsonDocAst, out errors);
         }

@@ -36,5 +36,10 @@
         {
             container.Register(typeof(IJsonSchemaFactory), jsonSchemaFactoryType).AsSingleton();
         }
+
+        protected override void RegisterJsonSchemaCacheProvider(TinyIoCContainer container, Type objectTypeJsonSchemaCacheProvider)
+        {
+            container.Register(typeof(IJsonSchemaCacheProvider), objectTypeJsonSchemaCacheProvider).AsSingleton();
+        }
     }
 }

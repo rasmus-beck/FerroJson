@@ -8,7 +8,7 @@ namespace FerroJson.Extensions
     {
         public static bool HasProperty(this ParseTreeNode node, string propertyName)
         {
-            return node.ChildNodes.SelectMany(x => x.ChildNodes).Any(y => null != y.Token && y.Token.ValueString == propertyName);
+            return null != node && node.ChildNodes.SelectMany(x => x.ChildNodes).Any(y => null != y.Token && y.Token.ValueString == propertyName);
         }
 
         public static ParseTreeNode GetPropertyValueNodeFromObject(this ParseTreeNode node, string propertyName)
@@ -25,6 +25,12 @@ namespace FerroJson.Extensions
 
         public static bool TryGetPropertyValueFromObject<T>(this ParseTreeNode node, string propertyName, out T value)
         {
+            if (null == node)
+            {
+                value = default (T);
+                return false;
+            }
+
             var propertyNode = node.ChildNodes.FirstOrDefault(x => x.ChildNodes.Any(y => y.Token != null && y.Token.ValueString == propertyName));
             return TryGetValue(propertyNode, out value);
         }

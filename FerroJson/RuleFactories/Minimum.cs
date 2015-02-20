@@ -4,15 +4,15 @@ using Irony.Parsing;
 
 namespace FerroJson.RuleFactories
 {
-    public class Minimum : IValidatorRuleFactory
+    public class Minimum : ValidatorRuleFactory
     {
-        public IList<JsonSchema.SchemaVersion> SupportedSchemaVersions { get; private set; }
-        public bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty)
+        public override IList<JsonSchema.SchemaVersion> SupportedSchemaVersions { get; protected set; }
+        public override bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty)
         {
             return false;
         }
 
-        public IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetValidatorRule(ParseTreeNode jsonSchemaProperty)
+        public override IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetValidatorRules(ParseTreeNode jsonSchemaProperty)
         {
             throw new NotImplementedException();
         }

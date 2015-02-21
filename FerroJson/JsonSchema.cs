@@ -28,6 +28,7 @@ namespace FerroJson
         public bool TryValidate(ParseTree jsonDoc, out IEnumerable<string> validationErrors)
         {
             //TODO: Run through json document forward only, and apply rules that match each
+            // Checks should run in parallel.
             // remember checks for the special cases _allowAdditionalProperties and _requiredProperties
 
             throw new NotImplementedException();

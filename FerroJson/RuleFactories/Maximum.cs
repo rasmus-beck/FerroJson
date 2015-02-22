@@ -24,13 +24,9 @@ namespace FerroJson.RuleFactories
             return HasProperty(jsonSchemaProperty, PropertyName);
         }
 
-        public override IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetValidatorRules(ParseTreeNode jsonSchemaProperty)
+        public override IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetValidatorRules(string propertyName, ParseTreeNode propertyDefinitioNode)
         {
-            //First get the definition 
-            var propertyDefinitioNode = GetPropertyDefinitionNode(jsonSchemaProperty); 
-            var propertyName = jsonSchemaProperty.GetPropertyName();
-
-            //Then get the maximum value allowed according to the schema
+            //Get the maximum value allowed according to the schema
             var maximumValue = propertyDefinitioNode.GetPropertyValueFromObject<float>(PropertyName);
             bool exclusiveMaximum;
             propertyDefinitioNode.TryGetPropertyValueFromObject(ExclusiveMaxPropertyName, out exclusiveMaximum);

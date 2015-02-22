@@ -11,7 +11,6 @@ namespace FerroJson.RuleFactories
     {
         public abstract IList<JsonSchema.SchemaVersion> SupportedSchemaVersions { get; protected set; }
         public abstract bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty);
-        public abstract IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetValidatorRules(ParseTreeNode jsonSchemaProperty);
 
         public IValidatorRuleFactoryLocator ValidatorRuleFactoryLocator
         {
@@ -113,6 +112,18 @@ namespace FerroJson.RuleFactories
             }
 
             return rules;
+        }
+
+        public virtual IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetValidatorRules(ParseTreeNode jsonSchemaProperty)
+        {
+            var propertyDefinitionNode = GetPropertyDefinitionNode(jsonSchemaProperty);
+            var propertyName = jsonSchemaProperty.GetPropertyName();
+            return GetValidatorRules(propertyName, propertyDefinitionNode);
+        }
+
+        public virtual IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetValidatorRules(string propertyName, ParseTreeNode valueNode)
+        {
+            throw new NotImplementedException("You must either implement GetValidatorRules(ParseTreeNode jsonSchemaProperty) or GetValidatorRules(string propertyName, ParseTreeNode valueNode) in your rule factory.");
         }
     }
 }

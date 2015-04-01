@@ -73,6 +73,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="testdata.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="v4schema.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
+using FerroJson;
 
 namespace TestApp
 {
@@ -14,13 +15,26 @@ namespace TestApp
 
         private void button1_Click(object sender, EventArgs e)
         {
-            using (var sr = File.OpenText("v4schema.json"))
+	        string testData;
+	        string testSchema;
+	        using (var data = File.OpenText("testdata.json"))
+	        {
+		        testData = data.ReadToEnd();
+	        }
+
+			using (var schema = File.OpenText("v4schema.json"))
             {
-                var s = sr.ReadToEnd();
-                var validator = new FerroJson.Validator();
-                IEnumerable<string> errors = new List<string>();
-                validator.Validate(s, s, out errors);   
+				testSchema = schema.ReadToEnd();
             }
+
+			var validator = new Validator();
+			IEnumerable<IPropertyValidationResult> errors = new List<IPropertyValidationResult>();
+			validator.Validate(testData, testSchema, out errors);
+
+			foreach (var propertyValidationResult in errors)
+			{
+				Console.WriteLine(propertyValidationResult.Error);
+			}
         }
     }
 }

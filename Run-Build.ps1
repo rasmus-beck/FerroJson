@@ -17,7 +17,9 @@ task Init -depends Clean {
 } 
 
 task Compile -depends Init { 
-  msbuild $sln_file /p:Configuration=Release /p:OutDir=""$buildartifacts_dir ""  /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=""$base_dir\FerroJson.snk  ""
+  msbuild $sln_file /p:Configuration=Release /p:OutDir=""$buildartifacts_dir\signed ""  /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=""$base_dir\FerroJson.snk  ""
+  msbuild $sln_file /p:Configuration=Release /p:OutDir=""$buildartifacts_dir\unsigned ""
+  msbuild $sln_file /p:Configuration=Debug /p:OutDir=""$buildartifacts_dir\debug ""
 } 
 
 task Test -depends Compile {

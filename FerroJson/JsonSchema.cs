@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using FerroJson.Extensions;
 using Irony.Parsing;
 
 namespace FerroJson
@@ -25,13 +27,38 @@ namespace FerroJson
             _requiredProperties = requiredProperties;
         }
 
-        public bool TryValidate(ParseTree jsonDoc, out IEnumerable<string> validationErrors)
+		public bool TryValidate(ParseTree jsonDoc, out IEnumerable<IPropertyValidationResult> validationErrors)
         {
             //TODO: Run through json document forward only, and apply rules that match each
             // Checks should run in parallel.
             // remember checks for the special cases _allowAdditionalProperties and _requiredProperties
 
-            throw new NotImplementedException();
+			validationErrors = ValidateObject(jsonDoc.Root, "");
+
+	        return validationErrors == null || !validationErrors.Any();
         }
+
+		public IEnumerable<IPropertyValidationResult> ValidateObject(ParseTreeNode node, string nameSpace)
+	    {
+			var errors = new List<IPropertyValidationResult>();
+		    foreach (var n in node.ChildNodes.Where( n => n.Term.Name == "Property"))
+		    {
+			    var propertyErrors = ValidateProperty(n, nameSpace);
+				errors.AddRange(propertyErrors);
+		    }
+
+			return errors;
+	    }
+
+		public IEnumerable<IPropertyValidationResult> ValidateProperty(ParseTreeNode node, string nameSpace)
+	    {
+			var propertyName = node.GetPropertyName();
+			var propertyValue = node.GetPropertyValueNodeFromObject(propertyName);
+			Console.WriteLine(nameSpace + propertyName);
+
+		    var rules = _schemaRules[nameSpace + propertyName];
+
+			return rules.Select(rule => rule(node)).Where(result => result != null).ToList();
+	    }
     }
 }

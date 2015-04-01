@@ -42,7 +42,7 @@ namespace FerroJson.RuleFactories
                         Error = "Cannot validate maximum. Input value is not numeric."
                     };
                 }
-                if (exclusiveMaximum ? value < maximumValue : value <= maximumValue)
+                if (exclusiveMaximum ? value >= maximumValue : value > maximumValue)
                 {
                     return new PropertyValidationResult
                     {

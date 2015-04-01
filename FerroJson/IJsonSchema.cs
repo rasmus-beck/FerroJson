@@ -5,6 +5,6 @@ namespace FerroJson
 {
     public interface IJsonSchema
     {
-        bool TryValidate(ParseTree jsonDoc, out IEnumerable<string> validationErrors);
+		bool TryValidate(ParseTree jsonDoc, out IEnumerable<IPropertyValidationResult> validationErrors);
     }
 }

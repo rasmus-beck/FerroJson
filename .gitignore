@@ -184,3 +184,5 @@ FakesAssemblies/
 
 # Beyond compare
 *.orig
+
+build/

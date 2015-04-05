@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using FerroJson;
 
@@ -28,12 +29,15 @@ namespace TestApp
             }
 
 			var validator = new Validator();
-			IEnumerable<IPropertyValidationResult> errors = new List<IPropertyValidationResult>();
+			IEnumerable<IPropertyValidationError> errors = new List<IPropertyValidationError>();
 			validator.Validate(testData, testSchema, out errors);
 
 			foreach (var propertyValidationResult in errors)
 			{
-				Console.WriteLine(propertyValidationResult.Error);
+				foreach (var error in propertyValidationResult.Errors)
+				{
+					Console.WriteLine(error);
+				}
 			}
         }
     }

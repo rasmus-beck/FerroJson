@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using FerroJson.RuleFactories;
 using Irony.Parsing;
 
 namespace FerroJson
@@ -21,16 +20,16 @@ namespace FerroJson
             {"http://json-schema.org/draft-04/schema#", JsonSchema.SchemaVersion.V4}
         };
 
-        private readonly IEnumerable<IValidatorRuleFactory> _propertyRuleFactories;
-        private readonly IJsonSchemaCacheProvider _cache;
+	    private readonly ObjectReferenceTypeRuleFactory _rootFactory;
+	    private readonly IJsonSchemaCacheProvider _cache;
 
-        public DefaultJsonSchemaFactory(IEnumerable<IValidatorRuleFactory> propertyRuleFactories, IJsonSchemaCacheProvider cache)
-        {
-            _propertyRuleFactories = propertyRuleFactories;
-            _cache = cache;
-        }
+		public DefaultJsonSchemaFactory(ObjectReferenceTypeRuleFactory rootFactory, IJsonSchemaCacheProvider cache)
+		{
+			_rootFactory = rootFactory;
+			_cache = cache;
+		}
 
-        public IJsonSchema GetSchema(ParseTree jsonSchemaAst, string schemaHash)
+	    public IJsonSchema GetSchema(ParseTree jsonSchemaAst, string schemaHash)
         {
             var schema = _cache.Get(schemaHash);
             if (null != schema)
@@ -40,10 +39,7 @@ namespace FerroJson
             //var propertyRuleFactories = _propertyRuleFactories.Where(x => x.SupportedSchemaVersions.Contains(version));
             var allowAdditionalProperties = GetAdditionalPropertiesAllowedFlag(jsonSchemaAst.Root);
            
-            IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> rules = new Dictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>>();
-            var rootFactory = _propertyRuleFactories.FirstOrDefault(f => f.CanCreateValidatorRule(jsonSchemaAst.Root));
-            if (null != rootFactory)
-                rules = rootFactory.GetValidatorRules(jsonSchemaAst.Root);
+            var rules = _rootFactory.GetValidatorRules(String.Empty, String.Empty, String.Empty, jsonSchemaAst.Root);
 
             var requiredProperties = new string[]{};
 

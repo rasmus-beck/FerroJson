@@ -23,4 +23,26 @@ namespace FerroJson.RuleFactories
             return _validatorRuleFactories.Where(f => f.CanCreateValidatorRule(node));
         }
     }
+
+
+
+	public interface IReferenceTypeRuleFactoryLocator
+	{
+		IReferenceTypeRuleFactory Locate(ParseTreeNode node);
+	}
+
+	public class DefaultReferenceTypeRuleFactoryLocator : IReferenceTypeRuleFactoryLocator
+	{
+		private readonly IEnumerable<IReferenceTypeRuleFactory> _referenceTypeRuleFactories;
+
+		public DefaultReferenceTypeRuleFactoryLocator(IEnumerable<IReferenceTypeRuleFactory> referenceTypeRuleFactories)
+		{
+			_referenceTypeRuleFactories = referenceTypeRuleFactories;
+		}
+
+		public IReferenceTypeRuleFactory Locate(ParseTreeNode node)
+		{
+			return _referenceTypeRuleFactories.FirstOrDefault(f => f.CanCreateValidatorRule(node));
+		}
+	}
 }

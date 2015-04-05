@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using FerroJson.Bootstrapper;
 using FerroJson.Extensions;
 using Irony.Parsing;
@@ -76,54 +75,10 @@ namespace FerroJson.RuleFactories
             return jsonSchemaProperty.ChildNodes[1];
         }
 
-        protected IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetRulesFromObject(ParseTreeNode node, string propertyName)
-        {
-            var nodeList = new ParseTreeNodeList {node};
-            return GetRulesFromObject(nodeList, propertyName);
-        }
 
-        protected IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetRulesFromObject(ParseTreeNodeList nodeList, string propertyName)
-        {
-            var rules = new Dictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>>();
-
-            if (!String.IsNullOrEmpty(propertyName))
-                propertyName += ".";
-
-            foreach (var node in nodeList)
-            {
-                var validatorRuleFactories = ValidatorRuleFactoryLocator.Locate(node);
-
-                foreach (var ruleFactory in validatorRuleFactories)
-                {
-                    var generatedRules = ruleFactory.GetValidatorRules(node);
-                    foreach (var generatedRule in generatedRules)
-                    {
-                        var key = propertyName + generatedRule.Key;
-                        if (rules.ContainsKey(key))
-                        {
-                            rules[key] = rules[key].Concat(generatedRule.Value).ToList();
-                        }
-                        else
-                        {
-                            rules.Add(key, generatedRule.Value);
-                        }
-                    }
-                }
-            }
-
-            return rules;
-        }
-
-        public virtual IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetValidatorRules(ParseTreeNode jsonSchemaProperty)
-        {
-            var propertyDefinitionNode = GetPropertyDefinitionNode(jsonSchemaProperty);
-            var propertyName = jsonSchemaProperty.GetPropertyName();
-            return GetValidatorRules(propertyName, propertyDefinitionNode);
-        }
-
-        public virtual IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetValidatorRules(string propertyName, ParseTreeNode valueNode)
-        {
-            throw new NotImplementedException("You must either implement GetValidatorRules(ParseTreeNode jsonSchemaProperty) or GetValidatorRules(string propertyName, ParseTreeNode valueNode) in your rule factory.");
-        }
+		public virtual Func<ParseTreeNode, string> GetValidatorRules(string propertyName, ParseTreeNode valueNode)
+		{
+			throw new NotImplementedException("You must either implement GetValidatorRules(ParseTreeNode jsonSchemaProperty) or GetValidatorRules(string propertyName, ParseTreeNode valueNode) in your rule factory.");
+		}
     }
 }

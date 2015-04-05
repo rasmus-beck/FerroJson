@@ -17,6 +17,11 @@
             return container.Resolve<IValidatorRuleFactoryLocator>();
         }
 
+		protected override IReferenceTypeRuleFactoryLocator GetReferenceTypeRuleFactoryLocator(TinyIoCContainer container)
+		{
+			return container.Resolve<IReferenceTypeRuleFactoryLocator>();
+		}
+
         protected override void RegisterValidatorRuleFactories(TinyIoCContainer container, IEnumerable<Type> validatorRuleFactoriesTypes)
         {
             container.RegisterMultiple(typeof(IValidatorRuleFactory), validatorRuleFactoriesTypes);
@@ -26,6 +31,16 @@
         {
             container.Register(typeof(IValidatorRuleFactoryLocator), objectTypeFactoryLocatorType).AsSingleton();
         }
+
+		protected override void RegisterReferenceTypeRuleFactories(TinyIoCContainer container, IEnumerable<Type> validatorRuleFactoriesTypes)
+		{
+			container.RegisterMultiple(typeof(IReferenceTypeRuleFactory), validatorRuleFactoriesTypes);
+		}
+
+		protected override void RegisterReferenceTypeRuleFactoryLocator(TinyIoCContainer container, Type objectTypeFactoryLocatorType)
+		{
+			container.Register(typeof(IReferenceTypeRuleFactoryLocator), objectTypeFactoryLocatorType).AsSingleton();
+		}
 
         protected override IJsonSchemaFactory GetJsonSchemaFactory(TinyIoCContainer container)
         {

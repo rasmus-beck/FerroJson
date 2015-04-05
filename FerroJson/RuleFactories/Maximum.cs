@@ -18,13 +18,10 @@ namespace FerroJson.RuleFactories
 
         public override bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty)
         {
-            //Are we dealing with an integer or a number, if not then we can't create a rule for this.
-            if (!(IsType(jsonSchemaProperty, "integer") || IsType(jsonSchemaProperty, "number"))) return false;
-
-            return HasProperty(jsonSchemaProperty, PropertyName);
+	        return jsonSchemaProperty.HasProperty(PropertyName);
         }
 
-        public override IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetValidatorRules(string propertyName, ParseTreeNode propertyDefinitioNode)
+        public override Func<ParseTreeNode, string> GetValidatorRules(string propertyName, ParseTreeNode propertyDefinitioNode)
         {
             //Get the maximum value allowed according to the schema
             var maximumValue = propertyDefinitioNode.GetPropertyValueFromObject<float>(PropertyName);
@@ -32,27 +29,21 @@ namespace FerroJson.RuleFactories
             propertyDefinitioNode.TryGetPropertyValueFromObject(ExclusiveMaxPropertyName, out exclusiveMaximum);
 
             //Return validation rule
-            Func<ParseTreeNode, IPropertyValidationResult> rule = property =>
+            Func<ParseTreeNode, string> rule = property =>
             {
                 float value;
                 if (!property.TryGetValue(out value))
                 {
-                    return new PropertyValidationResult
-                    {
-                        Error = "Cannot validate maximum. Input value is not numeric."
-                    };
+	                return "Cannot validate maximum. Input value is not numeric.";
                 }
                 if (exclusiveMaximum ? value >= maximumValue : value > maximumValue)
                 {
-                    return new PropertyValidationResult
-                    {
-                        Error = String.Format("Input value '{0}' is greater than maximumValue {1}.", value, maximumValue)
-                    };
+                    return String.Format("Input value '{0}' is greater than maximumValue {1}.", value, maximumValue);
                 }
                 return null;
             };
 
-            return new Dictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> { { propertyName, new[] { rule } } };
+            return rule;
         }
     }
 }

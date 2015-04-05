@@ -86,5 +86,36 @@ namespace FerroJson.Extensions
         {
             return node.ChildNodes[0].Token.ValueString;
         }
+
+		public static ParseTreeNode GetPropertyValueNode(this ParseTreeNode node)
+		{
+			return node.ChildNodes[1];
+		}
+
+		public static string GetPropertyDescription(this ParseTreeNode node)
+		{
+			string description;
+			TryGetPropertyValueFromObject(node, "description", out description);
+			return description;
+		}
+
+	    public static bool IsObjectNode(this ParseTreeNode node)
+	    {
+			string type;
+			return null != node && node.TryGetPropertyValueFromObject("type", out type) && type.ToLowerInvariant().Equals("object");
+	    }
+
+		public static bool IsArrayNode(this ParseTreeNode node)
+		{
+			string type;
+			return null != node && node.TryGetPropertyValueFromObject("type", out type) && type.ToLowerInvariant().Equals("array");
+		}
+
+		public static bool IsPropertyNode(this ParseTreeNode node)
+		{
+			return node.Term.Name.ToLowerInvariant().Equals("property");
+			string type;
+			return null != node && node.TryGetPropertyValueFromObject("type", out type) && type.ToLowerInvariant().Equals("property");
+		}
     }
 }

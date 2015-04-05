@@ -8,6 +8,6 @@ namespace FerroJson.RuleFactories
     {
         IList<JsonSchema.SchemaVersion> SupportedSchemaVersions { get; }
         bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty);
-        IDictionary<string, IList<Func<ParseTreeNode, IPropertyValidationResult>>> GetValidatorRules(ParseTreeNode jsonSchemaProperty);
+		Func<ParseTreeNode, string> GetValidatorRules(string propertyName, ParseTreeNode jsonSchemaProperty);
     }
 }

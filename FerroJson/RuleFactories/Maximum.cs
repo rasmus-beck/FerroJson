@@ -5,23 +5,23 @@ using Irony.Parsing;
 
 namespace FerroJson.RuleFactories
 {
-    public class Maximum : ValidatorRuleFactory
+	public class Maximum : IValidatorRuleFactory
     {
         private const string PropertyName = "maximum";
         private const string ExclusiveMaxPropertyName = "exclusiveMaximum";
 
-        public override IList<JsonSchema.SchemaVersion> SupportedSchemaVersions
+        public IList<JsonSchema.SchemaVersion> SupportedSchemaVersions
         {
             get {return new [] {JsonSchema.SchemaVersion.V4};}
             protected set { throw new NotImplementedException(); }
         }
 
-        public override bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty)
+        public bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty)
         {
 	        return jsonSchemaProperty.HasProperty(PropertyName);
         }
 
-        public override Func<ParseTreeNode, string> GetValidatorRules(string propertyName, ParseTreeNode propertyDefinitioNode)
+        public Func<ParseTreeNode, string> GetValidatorRules(string propertyName, ParseTreeNode propertyDefinitioNode)
         {
             //Get the maximum value allowed according to the schema
             var maximumValue = propertyDefinitioNode.GetPropertyValueFromObject<float>(PropertyName);

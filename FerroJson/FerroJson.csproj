@@ -63,7 +63,6 @@
     <Compile Include="RuleFactories\IValidatorRuleFactory.cs" />
     <Compile Include="RuleFactories\IValidatorRuleFactoryLocator.cs" />
     <Compile Include="RuleFactories\Maximum.cs" />
-    <Compile Include="RuleFactories\ValidatorRuleFactory.cs" />
     <Compile Include="TinyIoC.cs" />
     <Compile Include="Validator.cs" />
   </ItemGroup>

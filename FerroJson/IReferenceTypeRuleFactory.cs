@@ -89,14 +89,14 @@ namespace FerroJson
 		{
 			IDictionary<string, IProperty> properties = GetOwnProperty(nameSpace, propertyName, propertyDefinition);
 
-			if (propertyDefinition.properties.HasValue)
+			dynamic nestedPropertyDefinitions = (DynamicDictionary.DynamicDictionary)propertyDefinition.properties;
+			if (null != nestedPropertyDefinitions)
 			{
-				var nestedPropertyDefinitions = (DynamicDictionary.DynamicDictionary) propertyDefinition.properties;
 				nameSpace += propertyName;
 
 				foreach (var name in nestedPropertyDefinitions.Keys)
 				{
-					DynamicDictionary.DynamicDictionary value = nestedPropertyDefinitions[name];
+					dynamic value = (DynamicDictionary.DynamicDictionary)nestedPropertyDefinitions[name];
 					var keyValuePair = new KeyValuePair<string, dynamic>(name, value);
 					var validator = _locator.Locate(keyValuePair);
 					if (null != validator)

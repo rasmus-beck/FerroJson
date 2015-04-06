@@ -47,8 +47,12 @@
     <Compile Include="Bootstrapper\Bootstrapper.cs" />
     <Compile Include="Bootstrapper\BootstrapperLocator.cs" />
     <Compile Include="Bootstrapper\DefaultBootstrapper.cs" />
+    <Compile Include="DynamicDictionary\DynamicDictionary.cs" />
+    <Compile Include="DynamicDictionary\DynamicDictionaryValue.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Extensions\DynamicDictionaryExtensions.cs" />
     <Compile Include="Extensions\ParseTreeNodeExtensions.cs" />
+    <Compile Include="DynamicDictionary\IHideObjectMembers.cs" />
     <Compile Include="IJsonSchema.cs" />
     <Compile Include="IJsonSchemaCache.cs" />
     <Compile Include="IProperty.cs" />

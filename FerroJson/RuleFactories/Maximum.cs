@@ -7,26 +7,22 @@ namespace FerroJson.RuleFactories
 {
 	public class Maximum : IValidatorRuleFactory
     {
-        private const string PropertyName = "maximum";
-        private const string ExclusiveMaxPropertyName = "exclusiveMaximum";
-
         public IList<JsonSchema.SchemaVersion> SupportedSchemaVersions
         {
             get {return new [] {JsonSchema.SchemaVersion.V4};}
             protected set { throw new NotImplementedException(); }
         }
 
-        public bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty)
+		public bool CanCreateValidatorRule(dynamic propertyDefinition)
         {
-	        return jsonSchemaProperty.HasProperty(PropertyName);
+			return propertyDefinition.maximum.HasValue;
         }
 
-        public Func<ParseTreeNode, string> GetValidatorRules(string propertyName, ParseTreeNode propertyDefinitioNode)
-        {
+		public Func<ParseTreeNode, string> GetValidatorRules(dynamic propertyDefinition)
+		{
             //Get the maximum value allowed according to the schema
-            var maximumValue = propertyDefinitioNode.GetPropertyValueFromObject<float>(PropertyName);
-            bool exclusiveMaximum;
-            propertyDefinitioNode.TryGetPropertyValueFromObject(ExclusiveMaxPropertyName, out exclusiveMaximum);
+            var maximumValue = propertyDefinition.maximum;
+			var exclusiveMaximum = propertyDefinition.exclusiveMaximum.HasValue ? propertyDefinition.exclusiveMaximum : false;
 
             //Return validation rule
             Func<ParseTreeNode, string> rule = property =>

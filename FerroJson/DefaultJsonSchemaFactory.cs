@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FerroJson.Extensions;
 using Irony.Parsing;
 
 namespace FerroJson
@@ -35,11 +36,13 @@ namespace FerroJson
             if (null != schema)
                 return schema;
 
+			dynamic dynamicDict = jsonSchemaAst.AsDynamicDictionary();
+
             //var version = GetSchemaVersion(jsonSchemaAst.Root);
             //var propertyRuleFactories = _propertyRuleFactories.Where(x => x.SupportedSchemaVersions.Contains(version));
-            var allowAdditionalProperties = GetAdditionalPropertiesAllowedFlag(jsonSchemaAst.Root);
+			var allowAdditionalProperties = dynamicDict.allowAdditionalProperties == true;
            
-            var rules = _rootFactory.GetValidatorRules(String.Empty, String.Empty, String.Empty, jsonSchemaAst.Root);
+            var rules = _rootFactory.GetValidatorRules(dynamicDict);
 
             var requiredProperties = new string[]{};
 

@@ -9,7 +9,13 @@ namespace FerroJson
         {
             //Terminals
             var jstring = new StringLiteral("string", "\"");
-            var jnumber = new NumberLiteral("number");
+            var jdecimal = new NumberLiteral("decimal");
+			var jint = new NumberLiteral("int", NumberOptions.IntOnly | NumberOptions.NoDotAfterInt);
+			var nullConst = new ConstantTerminal("null", typeof(StringLiteral));
+			nullConst.Add("null", null);
+			var boolConst = new ConstantTerminal("bool", typeof(StringLiteral));
+			boolConst.Add("true", true);
+			boolConst.Add("false", false);
             var comma = ToTerm(",");
 
             //Nonterminals
@@ -21,7 +27,7 @@ namespace FerroJson
             var jprop = new NonTerminal("Property");
 
             //Rules
-            jvalue.Rule = jstring | jnumber | jobjectBr | jarrayBr | "true" | "false" | "null";
+			jvalue.Rule = jstring | jdecimal | jint | jobjectBr | jarrayBr | boolConst | nullConst;
             jobjectBr.Rule = "{" + jobject + "}";
             jobject.Rule = MakeStarRule(jobject, comma, jprop);
             jprop.Rule = jstring + ":" + jvalue;

@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-03/schema#",
   "title": "Accounts collection schema",
   "description": "A schema for persons age.",
-  "type": "object",
+    "type": "object",
   "properties": {
     "age": {
       "type": "number",

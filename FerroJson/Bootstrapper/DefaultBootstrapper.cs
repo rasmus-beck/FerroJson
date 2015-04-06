@@ -12,12 +12,7 @@
             return new TinyIoCContainer();
         }
 
-        protected override IValidatorRuleFactoryLocator GetValidatorRuleFactoryLocator(TinyIoCContainer container)
-        {
-            return container.Resolve<IValidatorRuleFactoryLocator>();
-        }
-
-		protected override IReferenceTypeRuleFactoryLocator GetReferenceTypeRuleFactoryLocator(TinyIoCContainer container)
+        protected override IReferenceTypeRuleFactoryLocator GetReferenceTypeRuleFactoryLocator(TinyIoCContainer container)
 		{
 			return container.Resolve<IReferenceTypeRuleFactoryLocator>();
 		}
@@ -27,12 +22,7 @@
             container.RegisterMultiple(typeof(IValidatorRuleFactory), validatorRuleFactoriesTypes);
         }
 
-        protected override void RegisterValidatorRuleFactoryLocator(TinyIoCContainer container, Type objectTypeFactoryLocatorType)
-        {
-            container.Register(typeof(IValidatorRuleFactoryLocator), objectTypeFactoryLocatorType).AsSingleton();
-        }
-
-		protected override void RegisterReferenceTypeRuleFactories(TinyIoCContainer container, IEnumerable<Type> validatorRuleFactoriesTypes)
+	    protected override void RegisterReferenceTypeRuleFactories(TinyIoCContainer container, IEnumerable<Type> validatorRuleFactoriesTypes)
 		{
 			container.RegisterMultiple(typeof(IReferenceTypeRuleFactory), validatorRuleFactoriesTypes);
 		}

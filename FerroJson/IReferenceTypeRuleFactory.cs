@@ -10,8 +10,9 @@ namespace FerroJson
 {
 	public interface IReferenceTypeRuleFactory
 	{
-		bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty);
-		IDictionary<string, IProperty> GetValidatorRules(string nameSpace, string propertyName, string propertyDescription, ParseTreeNode value);
+		bool CanCreateValidatorRule(dynamic propertyDefinition);
+		IDictionary<string, IProperty> GetValidatorRules(string nameSpace, string propertyName, dynamic propertyDefinition);
+		IDictionary<string, IProperty> GetValidatorRules(dynamic propertyDefinition);
 	}
 
 	public abstract class ReferenceTypeRuleFactory : IReferenceTypeRuleFactory
@@ -23,24 +24,31 @@ namespace FerroJson
 			ValidatorRuleFactories = validatorRuleFactories;
 		}
 
-		public abstract bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty);
-		public abstract IDictionary<string, IProperty> GetValidatorRules(string nameSpace, string propertyName, string propertyDescription, ParseTreeNode value);
+		public abstract bool CanCreateValidatorRule(dynamic propertyDefinition);
+		public abstract IDictionary<string, IProperty> GetValidatorRules(string nameSpace, string propertyName, dynamic propertyDefinition);
 
-		protected IDictionary<string, IProperty> GetOwnProperty(string nameSpace, string propertyName, string propertyDescription, ParseTreeNode jsonSchemaProperty)
+		public virtual IDictionary<string, IProperty> GetValidatorRules(dynamic propertyDefinition)
 		{
-			if (String.IsNullOrEmpty(propertyName))
-				return null;
+			return GetValidatorRules(string.Empty, string.Empty, propertyDefinition);
+		}
 
+		protected IDictionary<string, IProperty> GetOwnProperty(string nameSpace, string propertyName, dynamic propertyDefinition)
+		{
 			var properties = new Dictionary<string, IProperty>();
+
+			if (String.IsNullOrEmpty(propertyName))
+				return properties;
 
 			if (!String.IsNullOrEmpty(nameSpace))
 			{
 				nameSpace += ".";
 			}
 
-			var validatorRuleFactories = ValidatorRuleFactories.Where(f => f.CanCreateValidatorRule(jsonSchemaProperty)).ToList();
-			var objectRules = validatorRuleFactories.Select(ruleFactory => ruleFactory.GetValidatorRules(nameSpace, jsonSchemaProperty)).ToList();
-			var objectProperty = new Property { Name = propertyName, Description = propertyDescription, Rules = objectRules };
+			var description = propertyDefinition.description.HasValue ? propertyDefinition.description.Value : null;
+
+			var validatorRuleFactories = ValidatorRuleFactories.Where(f => f.CanCreateValidatorRule(propertyDefinition)).ToList();
+			var objectRules = validatorRuleFactories.Select<IValidatorRuleFactory, Func<ParseTreeNode, string>>(ruleFactory => ruleFactory.GetValidatorRules(propertyDefinition)).ToList();
+			var objectProperty = new Property { Name = propertyName, Description = description, Rules = objectRules };
 			properties.Add(nameSpace + propertyName, objectProperty);
 			return properties;
 		}
@@ -52,48 +60,48 @@ namespace FerroJson
 		{
 		}
 
-		public override bool CanCreateValidatorRule(ParseTreeNode jsonSchemaProperty)
+		public override bool CanCreateValidatorRule(dynamic propertyDefinition)
 		{
-			return jsonSchemaProperty.IsPropertyNode();
+			return propertyDefinition is KeyValuePair<string, dynamic>;
 		}
 
-		public override IDictionary<string, IProperty> GetValidatorRules(string nameSpace, string propertyName, string propertyDescription,
-			ParseTreeNode value)
+		public override IDictionary<string, IProperty> GetValidatorRules(string nameSpace, string propertyName, dynamic propertyDefinition)
 		{
-			return GetOwnProperty(nameSpace, propertyName, propertyDescription, value);
+			return GetOwnProperty(nameSpace, propertyName, propertyDefinition);
 		}
 	}
 
 	public class ObjectReferenceTypeRuleFactory : ReferenceTypeRuleFactory
 	{
+		private IReferenceTypeRuleFactoryLocator _locator;
+
 		public ObjectReferenceTypeRuleFactory(IEnumerable<IValidatorRuleFactory> validatorRuleFactories) : base(validatorRuleFactories)
 		{
+			_locator = BootstrapperLocator.Bootstrapper.GetReferenceTypeRuleFactoryLocator();
 		}
 
-		public override bool CanCreateValidatorRule(ParseTreeNode jsonSchemaObject)
+		public override bool CanCreateValidatorRule(dynamic propertyDefinition)
 		{
-			return jsonSchemaObject.IsObjectNode();
+			return propertyDefinition is DynamicDictionary.DynamicDictionary;
 		}
 
-		public override IDictionary<string, IProperty> GetValidatorRules(string nameSpace, string propertyName, string propertyDescription, ParseTreeNode value) 
+		public override IDictionary<string, IProperty> GetValidatorRules(string nameSpace, string propertyName, dynamic propertyDefinition) 
 		{
-			var properties = GetOwnProperty(nameSpace, propertyName, propertyDescription, value);
+			IDictionary<string, IProperty> properties = GetOwnProperty(nameSpace, propertyName, propertyDefinition);
 
-			var nestedPropertyDefinitions = value.GetPropertyValueNodeFromObject("properties");
-			if (null != nestedPropertyDefinitions)
+			if (propertyDefinition.properties.HasValue)
 			{
+				var nestedPropertyDefinitions = (DynamicDictionary.DynamicDictionary) propertyDefinition.properties;
 				nameSpace += propertyName;
-				var locator = BootstrapperLocator.Bootstrapper.GetReferenceTypeRuleFactoryLocator();
 
-				foreach (var propertyDefinition in nestedPropertyDefinitions.ChildNodes)
+				foreach (var name in nestedPropertyDefinitions.Keys)
 				{
-					var validator = locator.Locate(propertyDefinition);
+					DynamicDictionary.DynamicDictionary value = nestedPropertyDefinitions[name];
+					var keyValuePair = new KeyValuePair<string, dynamic>(name, value);
+					var validator = _locator.Locate(keyValuePair);
 					if (null != validator)
 					{
-						var nPropertyName = propertyDefinition.GetPropertyName();
-						var nPropertyDescription = propertyDefinition.GetPropertyDescription();
-						var nPropertyValueNode = propertyDefinition.GetPropertyValueNode();
-						var nestedProperties = validator.GetValidatorRules(nameSpace, nPropertyName, nPropertyDescription, nPropertyValueNode);
+						IDictionary<string, IProperty> nestedProperties = validator.GetValidatorRules(nameSpace, name, value);
 						properties = properties.AddRange(nestedProperties);
 					}
 				}

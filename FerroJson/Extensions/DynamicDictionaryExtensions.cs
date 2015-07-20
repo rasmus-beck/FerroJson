@@ -9,10 +9,10 @@ namespace FerroJson.Extensions
 	{
 		public static DynamicDictionary.DynamicDictionary AsDynamicDictionary(this ParseTree parseTree)
 		{
-			return ObjectAsDynamicDictionary(parseTree.Root);
+			return AsDynamicDictionary(parseTree.Root);
 		}
 
-		private static DynamicDictionary.DynamicDictionary ObjectAsDynamicDictionary(ParseTreeNode node)
+		public static DynamicDictionary.DynamicDictionary AsDynamicDictionary(this ParseTreeNode node)
 		{
 			var list = node.ChildNodes.Select(childNode => PropertyAsDynamicDictionaryKeyValuePair(childNode)).ToList();
 			return DynamicDictionary.DynamicDictionary.Create(list);
@@ -33,7 +33,7 @@ namespace FerroJson.Extensions
 			switch (term)
 			{
 				case "object":
-					value = ObjectAsDynamicDictionary(node);
+					value = AsDynamicDictionary(node);
 					break;
 				case "array":
 					value = ArrayAsDynamicDictionary(node);

@@ -8,7 +8,7 @@ namespace FerroJson
 {
     public interface IJsonSchemaFactory
     {
-        IJsonSchema GetSchema(ParseTree jsonSchemaAst, string schemaHash);
+		IJsonSchema GetSchema(string jsonSchema, string schemaHash);
     }
 
     public class DefaultJsonSchemaFactory : IJsonSchemaFactory
@@ -30,11 +30,21 @@ namespace FerroJson
 			_cache = cache;
 		}
 
-	    public IJsonSchema GetSchema(ParseTree jsonSchemaAst, string schemaHash)
+		public IJsonSchema GetSchema(string jsonSchema, string schemaHash)
         {
-            var schema = _cache.Get(schemaHash);
+			var schema = _cache.Get(schemaHash);
             if (null != schema)
                 return schema;
+
+			var jsonGrammar = new JsonGrammar();
+			var jsonParser = new Parser(jsonGrammar);
+			var jsonSchemaAst = jsonParser.Parse(jsonSchema);
+
+			if (jsonSchemaAst.HasErrors())
+			{
+				var messages = jsonSchemaAst.ParserMessages.Select(parserMessage => parserMessage.Message).Aggregate((current, next) => current + Environment.NewLine + next);
+				throw new ArgumentException(messages);
+			}
 
 			dynamic dynamicDict = jsonSchemaAst.AsDynamicDictionary();
 

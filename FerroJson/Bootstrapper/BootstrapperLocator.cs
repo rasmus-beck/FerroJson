@@ -3,7 +3,7 @@
     using System;
     using System.Linq;
 
-    public class BootstrapperLocator
+    public class BootstrapperLocator //TODO: Make threadsafe singleton
     {
         public static IBootstrapper Bootstrapper;
 

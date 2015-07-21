@@ -53,6 +53,7 @@
     <Compile Include="Extensions\DynamicDictionaryExtensions.cs" />
     <Compile Include="Extensions\ParseTreeNodeExtensions.cs" />
     <Compile Include="DynamicDictionary\IHideObjectMembers.cs" />
+    <Compile Include="IJsonParser.cs" />
     <Compile Include="IJsonSchema.cs" />
     <Compile Include="IJsonSchemaCache.cs" />
     <Compile Include="IProperty.cs" />

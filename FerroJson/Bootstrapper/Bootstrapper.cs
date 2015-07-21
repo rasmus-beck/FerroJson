@@ -44,6 +44,8 @@ namespace FerroJson.Bootstrapper
 
         protected abstract void RegisterJsonSchemaCacheProvider(TContainer container, Type objectTypeJsonSchemaCacheProvider);
 
+		protected abstract void RegisterJsonParser(TContainer container, Type objectTypeJsonParser);
+
         protected abstract IJsonSchemaFactory GetJsonSchemaFactory(TContainer container);
 
         protected abstract void RegisterJsonSchemaFactory(TContainer container, Type jsonSchemaFactoryType);
@@ -70,6 +72,11 @@ namespace FerroJson.Bootstrapper
             get { return typeof(DefaultJsonSchemaCacheProvider); }
         }
 
+		protected virtual Type JsonParser
+		{
+			get { return typeof(DefaultJsonParser); }
+		}
+
 	    protected virtual Type ReferenceTypeRuleFactoryLocator
 	    {
 			get { return typeof(DefaultReferenceTypeRuleFactoryLocator); }
@@ -83,6 +90,7 @@ namespace FerroJson.Bootstrapper
 			RegisterReferenceTypeRuleFactoryLocator(ApplicationContainer, ReferenceTypeRuleFactoryLocator);
             RegisterJsonSchemaFactory(ApplicationContainer, JsonSchemaFactory);
             RegisterJsonSchemaCacheProvider(ApplicationContainer, JsonSchemaCacheProvider);
+			RegisterJsonParser(ApplicationContainer, JsonParser);
             
             ConfigureApplicationContainer(ApplicationContainer);
             _isInitialized = true;

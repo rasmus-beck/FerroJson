@@ -32,7 +32,12 @@
 			container.Register(typeof(IReferenceTypeRuleFactoryLocator), objectTypeFactoryLocatorType).AsSingleton();
 		}
 
-        protected override IJsonSchemaFactory GetJsonSchemaFactory(TinyIoCContainer container)
+	    protected override void RegisterJsonParser(TinyIoCContainer container, Type objectTypeJsonParser)
+	    {
+			container.Register(typeof(IJsonParser), objectTypeJsonParser).AsSingleton();
+	    }
+
+	    protected override IJsonSchemaFactory GetJsonSchemaFactory(TinyIoCContainer container)
         {
             return container.Resolve<IJsonSchemaFactory>();
         }

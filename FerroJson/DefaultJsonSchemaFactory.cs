@@ -23,11 +23,13 @@ namespace FerroJson
 
 	    private readonly ObjectReferenceTypeRuleFactory _rootFactory;
 	    private readonly IJsonSchemaCacheProvider _cache;
+	    private readonly IJsonParser _jsonParser;
 
-		public DefaultJsonSchemaFactory(ObjectReferenceTypeRuleFactory rootFactory, IJsonSchemaCacheProvider cache)
+	    public DefaultJsonSchemaFactory(ObjectReferenceTypeRuleFactory rootFactory, IJsonSchemaCacheProvider cache, IJsonParser jsonParser)
 		{
 			_rootFactory = rootFactory;
 			_cache = cache;
+			_jsonParser = jsonParser;
 		}
 
 		public IJsonSchema GetSchema(string jsonSchema, string schemaHash)
@@ -36,17 +38,7 @@ namespace FerroJson
             if (null != schema)
                 return schema;
 
-			var jsonGrammar = new JsonGrammar();
-			var jsonParser = new Parser(jsonGrammar);
-			var jsonSchemaAst = jsonParser.Parse(jsonSchema);
-
-			if (jsonSchemaAst.HasErrors())
-			{
-				var messages = jsonSchemaAst.ParserMessages.Select(parserMessage => parserMessage.Message).Aggregate((current, next) => current + Environment.NewLine + next);
-				throw new ArgumentException(messages);
-			}
-
-			dynamic dynamicDict = jsonSchemaAst.AsDynamicDictionary();
+			dynamic dynamicDict = _jsonParser.Parse(jsonSchema);
 
             //var version = GetSchemaVersion(jsonSchemaAst.Root);
             //var propertyRuleFactories = _propertyRuleFactories.Where(x => x.SupportedSchemaVersions.Contains(version));

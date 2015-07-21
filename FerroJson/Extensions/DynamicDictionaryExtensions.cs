@@ -22,7 +22,7 @@ namespace FerroJson.Extensions
 		{
 			var propertyName = node.GetPropertyName();
 			var valueNode = node.ChildNodes.Skip(1).Take(1).FirstOrDefault();
-			var value = GetValue(valueNode);
+			dynamic value = GetValue(valueNode);
 			return new KeyValuePair<string, dynamic>(propertyName, value);
 		}
 

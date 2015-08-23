@@ -6,7 +6,7 @@ namespace FerroJson.Bootstrapper
 {
     public interface IBootstrapper
     {
-        IJsonSchemaFactory GetJsonSchemaFactory();
+        IJsonSchemaValidator GetJsonSchemaValidator();
 
 		IReferenceTypeRuleFactoryLocator GetReferenceTypeRuleFactoryLocator();
     }
@@ -15,14 +15,14 @@ namespace FerroJson.Bootstrapper
     {
         private bool _isInitialized;
 
-        public IJsonSchemaFactory GetJsonSchemaFactory()
+        public IJsonSchemaValidator GetJsonSchemaValidator()
         {
             if (!_isInitialized)
             {
                 Initialize();
             }
 
-            return GetJsonSchemaFactory(ApplicationContainer);
+            return GetJsonSchemaValidator(ApplicationContainer);
         }
 
         public IReferenceTypeRuleFactoryLocator GetReferenceTypeRuleFactoryLocator()
@@ -46,9 +46,11 @@ namespace FerroJson.Bootstrapper
 
 		protected abstract void RegisterJsonParser(TContainer container, Type objectTypeJsonParser);
 
-        protected abstract IJsonSchemaFactory GetJsonSchemaFactory(TContainer container);
+        protected abstract IJsonSchemaValidator GetJsonSchemaValidator(TContainer container);
 
         protected abstract void RegisterJsonSchemaFactory(TContainer container, Type jsonSchemaFactoryType);
+
+		protected abstract void RegisterJsonSchemaValidator(TContainer container, Type jsonSchemaValidatorType);
         
         protected virtual void ConfigureApplicationContainer(TContainer container) {}
 
@@ -66,6 +68,11 @@ namespace FerroJson.Bootstrapper
         {
             get { return typeof(DefaultJsonSchemaFactory); }
         }
+
+		protected virtual Type JsonSchemaValidator
+		{
+			get { return typeof(DefaultJsonSchemaValidator); }
+		}
 
         protected virtual Type JsonSchemaCacheProvider
         {
@@ -91,6 +98,7 @@ namespace FerroJson.Bootstrapper
             RegisterJsonSchemaFactory(ApplicationContainer, JsonSchemaFactory);
             RegisterJsonSchemaCacheProvider(ApplicationContainer, JsonSchemaCacheProvider);
 			RegisterJsonParser(ApplicationContainer, JsonParser);
+			RegisterJsonSchemaValidator(ApplicationContainer, JsonSchemaValidator);
             
             ConfigureApplicationContainer(ApplicationContainer);
             _isInitialized = true;

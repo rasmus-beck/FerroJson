@@ -7,7 +7,7 @@ namespace FerroJson
 {
 	public interface IJsonParser
 	{
-		DynamicDictionary.DynamicDictionary Parse(string jsonDocument);
+		dynamic Parse(string jsonDocument);
 	}
 
 	public class DefaultJsonParser : IJsonParser
@@ -19,7 +19,8 @@ namespace FerroJson
 			var jsonGrammar = new JsonGrammar();
 			_jsonParser = new Parser(jsonGrammar);
 		}
-		public DynamicDictionary.DynamicDictionary Parse(string jsonDocument)
+
+		public dynamic Parse(string jsonDocument)
 		{
 			var jsonDocAst = _jsonParser.Parse(jsonDocument);
 
@@ -29,7 +30,8 @@ namespace FerroJson
 				throw new ArgumentException(messages);
 			}
 
-			return jsonDocAst.AsDynamicDictionary();
+			dynamic dict = jsonDocAst.AsDynamicDictionary();
+			return dict;
 		}
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using FerroJson.Extensions;
 using FerroJson.RuleFactories;
 using FerroJson.Tests.Fixtures;
@@ -83,8 +82,8 @@ namespace FerroJson.Tests.PropertyRuleFactories
             Assert.That(rules, Is.Not.Null);
             
             //When
-			var property = ParseTreeNodeFixture.BuildPropertyNode("age", 50);
-            var result = rules.Invoke(property);
+			//var property = ParseTreeNodeFixture.BuildPropertyNode("age", 50);
+            var result = rules.Invoke(50);
 
             //Then
             Assert.That(result, Is.Null);
@@ -135,8 +134,8 @@ namespace FerroJson.Tests.PropertyRuleFactories
             Assert.That(rules, Is.Not.Null);
             
             //When
-			var property = ParseTreeNodeFixture.BuildPropertyNode("age", 99);
-            var result = rules.Invoke(property);
+			//var property = ParseTreeNodeFixture.BuildPropertyNode("age", 99);
+            var result = rules.Invoke(99);
 
             //Then
             Assert.That(result, Is.Null);
@@ -158,8 +157,8 @@ namespace FerroJson.Tests.PropertyRuleFactories
             Assert.That(rules, Is.Not.Null);
 
             //When
-			var property = ParseTreeNodeFixture.BuildPropertyNode("age", 98);
-            var result = rules.Invoke(property);
+			//var property = ParseTreeNodeFixture.BuildPropertyNode("age", 98);
+            var result = rules.Invoke(98);
 
             //Then
             Assert.That(result, Is.Null);

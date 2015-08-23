@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -47,6 +48,7 @@
     <Compile Include="Bootstrapper\Bootstrapper.cs" />
     <Compile Include="Bootstrapper\BootstrapperLocator.cs" />
     <Compile Include="Bootstrapper\DefaultBootstrapper.cs" />
+    <Compile Include="DefaultJsonSchemaValidator.cs" />
     <Compile Include="DynamicDictionary\DynamicDictionary.cs" />
     <Compile Include="DynamicDictionary\DynamicDictionaryValue.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
@@ -56,6 +58,7 @@
     <Compile Include="IJsonParser.cs" />
     <Compile Include="IJsonSchema.cs" />
     <Compile Include="IJsonSchemaCache.cs" />
+    <Compile Include="IJsonSchemaValidator.cs" />
     <Compile Include="IProperty.cs" />
     <Compile Include="IPropertyValidationError.cs" />
     <Compile Include="IReferenceTypeRuleFactory.cs" />

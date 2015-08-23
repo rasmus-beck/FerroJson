@@ -4,7 +4,6 @@ using System.Linq;
 using FerroJson.Bootstrapper;
 using FerroJson.Extensions;
 using FerroJson.RuleFactories;
-using Irony.Parsing;
 
 namespace FerroJson
 {
@@ -47,7 +46,7 @@ namespace FerroJson
 			var description = propertyDefinition.description.HasValue ? propertyDefinition.description.Value : null;
 
 			var validatorRuleFactories = ValidatorRuleFactories.Where(f => f.CanCreateValidatorRule(propertyDefinition)).ToList();
-			var objectRules = validatorRuleFactories.Select<IValidatorRuleFactory, Func<ParseTreeNode, string>>(ruleFactory => ruleFactory.GetValidatorRules(propertyDefinition)).ToList();
+			var objectRules = validatorRuleFactories.Select<IValidatorRuleFactory, Func<dynamic, string>>(ruleFactory => ruleFactory.GetValidatorRules(propertyDefinition)).ToList();
 			var objectProperty = new Property { Name = propertyName, Description = description, Rules = objectRules };
 			properties.Add(nameSpace + propertyName, objectProperty);
 			return properties;

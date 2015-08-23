@@ -37,10 +37,15 @@
 			container.Register(typeof(IJsonParser), objectTypeJsonParser).AsSingleton();
 	    }
 
-	    protected override IJsonSchemaFactory GetJsonSchemaFactory(TinyIoCContainer container)
+	    protected override IJsonSchemaValidator GetJsonSchemaValidator(TinyIoCContainer container)
         {
-            return container.Resolve<IJsonSchemaFactory>();
+			return container.Resolve<IJsonSchemaValidator>();
         }
+
+		protected override void RegisterJsonSchemaValidator(TinyIoCContainer container, Type jsonSchemaValidatorType)
+		{
+			container.Register(typeof(IJsonSchemaValidator), jsonSchemaValidatorType).AsSingleton();
+		}
 
         protected override void RegisterJsonSchemaFactory(TinyIoCContainer container, Type jsonSchemaFactoryType)
         {

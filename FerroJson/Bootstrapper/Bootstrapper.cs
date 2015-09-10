@@ -7,8 +7,6 @@ namespace FerroJson.Bootstrapper
     public interface IBootstrapper
     {
         IJsonSchemaValidator GetJsonSchemaValidator();
-
-		IReferenceTypeRuleFactoryLocator GetReferenceTypeRuleFactoryLocator();
     }
 
     public abstract class Bootstrapper<TContainer> : IBootstrapper
@@ -25,22 +23,13 @@ namespace FerroJson.Bootstrapper
             return GetJsonSchemaValidator(ApplicationContainer);
         }
 
-        public IReferenceTypeRuleFactoryLocator GetReferenceTypeRuleFactoryLocator()
-	    {
-		    return GetReferenceTypeRuleFactoryLocator(ApplicationContainer);
-	    }
-
 	    protected TContainer ApplicationContainer { get; set; }
 
         protected abstract TContainer GetApplicationContainer();
 
-        protected abstract IReferenceTypeRuleFactoryLocator GetReferenceTypeRuleFactoryLocator(TContainer container);
-
         protected abstract void RegisterValidatorRuleFactories(TContainer container, IEnumerable<Type> validatorRuleFactoriesTypes);
 
-        protected abstract void RegisterReferenceTypeRuleFactories(TContainer container, IEnumerable<Type> referenceTypeRuleFactoriesTypes);
-
-		protected abstract void RegisterReferenceTypeRuleFactoryLocator(TContainer container, Type referenceTypeRuleFactoryLocatorType);
+        protected abstract void RegisterReferenceTypeRuleFactories(TContainer container, Type referenceTypeRuleFactoriesType);
 
         protected abstract void RegisterJsonSchemaCacheProvider(TContainer container, Type objectTypeJsonSchemaCacheProvider);
 
@@ -59,9 +48,9 @@ namespace FerroJson.Bootstrapper
             get { return AppDomainScanner.Types<IValidatorRuleFactory>(); }
         }
 
-		protected virtual IEnumerable<Type> ReferenceTypeRuleFactories
+		protected virtual Type ReferenceTypeRuleFactory
 		{
-			get { return AppDomainScanner.Types<IReferenceTypeRuleFactory>(); }
+			get { return typeof(ReferenceTypeRuleFactory); }
 		}
 
         protected virtual Type JsonSchemaFactory
@@ -84,17 +73,11 @@ namespace FerroJson.Bootstrapper
 			get { return typeof(DefaultJsonParser); }
 		}
 
-	    protected virtual Type ReferenceTypeRuleFactoryLocator
-	    {
-			get { return typeof(DefaultReferenceTypeRuleFactoryLocator); }
-	    }
-
         private void Initialize()
         {
             ApplicationContainer = GetApplicationContainer();
             RegisterValidatorRuleFactories(ApplicationContainer, ValidatorRuleFactories);
-			RegisterReferenceTypeRuleFactories(ApplicationContainer, ReferenceTypeRuleFactories);
-			RegisterReferenceTypeRuleFactoryLocator(ApplicationContainer, ReferenceTypeRuleFactoryLocator);
+			RegisterReferenceTypeRuleFactories(ApplicationContainer, ReferenceTypeRuleFactory);
             RegisterJsonSchemaFactory(ApplicationContainer, JsonSchemaFactory);
             RegisterJsonSchemaCacheProvider(ApplicationContainer, JsonSchemaCacheProvider);
 			RegisterJsonParser(ApplicationContainer, JsonParser);

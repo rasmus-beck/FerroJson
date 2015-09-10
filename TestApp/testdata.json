@@ -1,3 +1,19 @@
-﻿{ 
-    "age":  215
+﻿{
+	"age": 215,
+	"ary": [ 10, 29, 42 ],
+	"obj": { "a": "b" },
+	"address": { 
+		"streetNumber": 300	
+	},
+	"contacts": [
+		{
+			"streetNumber": 300
+		},
+		{
+			"streetNumber": 100
+		},
+		{ 
+			"streetNumber":  400
+		}
+	]
 }

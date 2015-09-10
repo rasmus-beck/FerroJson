@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using FerroJson.Extensions;
 
 namespace FerroJson
 {
@@ -36,11 +37,40 @@ namespace FerroJson
 			foreach (string property in node)
 			{
 				dynamic value = node[property];
-				var rules = schema.PropertyRules[nameSpace + property];
-				if (null == rules)
-					continue;
 
-				var propertyErrors = rules.Rules.Select(rule => rule(value) as String).Where(result => !String.IsNullOrEmpty(result)).ToList();
+				if (value.Value is Array)
+				{
+					errors.AddRange(ValidateArray(value.Value, property, nameSpace, schema));
+				}
+				else if (value.Value is DynamicDictionary.DynamicDictionary)
+				{
+					errors.AddRange(ValidateObject(value.Value, nameSpace.AppendToNameSpace(property), schema));
+				}
+				else
+				{
+					errors.AddRange(ValidateProperty(value.Value, nameSpace.AppendToNameSpace(property), schema));
+				}
+
+				var isArray = value.Value is Array;
+				var isObject = value.Value is DynamicDictionary.DynamicDictionary;
+			}
+
+			return errors;
+		}
+
+		private IEnumerable<IPropertyValidationError> ValidateProperty(dynamic value, string nameSpace, IJsonSchema schema)
+		{
+			if (!schema.PropertyRules.ContainsKey(nameSpace))
+			{
+				return new List<IPropertyValidationError>();
+			}
+
+			var rules = schema.PropertyRules[nameSpace];
+
+			var propertyErrors = rules.Rules.Select(rule => rule(value) as String).Where(result => !String.IsNullOrEmpty(result)).ToList();
+
+			if (propertyErrors.Any())
+			{
 				var validationError = new PropertyValidationError
 				{
 					Errors = propertyErrors,
@@ -48,35 +78,28 @@ namespace FerroJson
 					AttemptedValue = value
 				};
 
-				errors.AddRange(new[] { validationError });
+				return new List<IPropertyValidationError> { validationError };
 			}
 
+			return new List<IPropertyValidationError>();
+		}
+
+		private IEnumerable<IPropertyValidationError> ValidateArray(dynamic array, string property, string nameSpace, IJsonSchema schema)
+		{
+			var errors = new List<IPropertyValidationError>();
+			
+			foreach (dynamic arrayItem in array)
+			{
+				if (arrayItem.GetType().IsValueType)
+				{
+					errors.AddRange(ValidateProperty(arrayItem, nameSpace.AppendToNameSpace(property), schema));
+				}
+				else
+				{
+					errors.AddRange(ValidateObject(arrayItem, nameSpace.AppendToNameSpace(property), schema));
+				}
+			}
 			return errors;
 		}
-
-		/*
-		private IEnumerable<IPropertyValidationError> ValidateProperty(dynamic node, string nameSpace)
-		{
-			var propertyName = node.GetPropertyName();
-			var propertyValue = node.GetPropertyValueNode();
-			Console.WriteLine(nameSpace + propertyName);
-
-			var rules = _schemaRules[nameSpace + propertyName];
-
-			var errors = rules.Rules.Select(rule => rule(node)).Where(result => !String.IsNullOrEmpty(result)).ToList();
-			var validationError = new PropertyValidationError()
-			{
-				Errors = errors,
-				PropertyDescription = rules.Description,
-				AttemptedValue = propertyValue.Token.Value
-			};
-
-			return new[] { validationError };
-		}
-
-		private IEnumerable<IPropertyValidationError> ValidateArray(ParseTreeNode node, string nameSpace)
-		{
-			throw new NotImplementedException();
-		}*/
 	}
 }

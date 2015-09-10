@@ -5,7 +5,7 @@ namespace FerroJson
 {
 	public interface IProperty
 	{
-		IList<Func<dynamic, string>> Rules { get; set; }
+		IEnumerable<Func<dynamic, string>> Rules { get; set; }
 		string Description { get; set; }
 		string Name { get; set; }
 	}

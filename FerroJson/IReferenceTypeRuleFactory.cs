@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using FerroJson.Bootstrapper;
 using FerroJson.Extensions;
 using FerroJson.RuleFactories;
 
@@ -9,84 +9,27 @@ namespace FerroJson
 {
 	public interface IReferenceTypeRuleFactory
 	{
-		bool CanCreateValidatorRule(dynamic propertyDefinition);
 		IDictionary<string, IProperty> GetValidatorRules(string nameSpace, string propertyName, dynamic propertyDefinition);
 		IDictionary<string, IProperty> GetValidatorRules(dynamic propertyDefinition);
 	}
 
-	public abstract class ReferenceTypeRuleFactory : IReferenceTypeRuleFactory
+	public class ReferenceTypeRuleFactory : IReferenceTypeRuleFactory
 	{
-		protected IEnumerable<IValidatorRuleFactory> ValidatorRuleFactories;
+		private readonly IEnumerable<IValidatorRuleFactory> _validatorRuleFactories;
 
-		protected ReferenceTypeRuleFactory(IEnumerable<IValidatorRuleFactory> validatorRuleFactories)
+		public ReferenceTypeRuleFactory(IEnumerable<IValidatorRuleFactory> validatorRuleFactories)
 		{
-			ValidatorRuleFactories = validatorRuleFactories;
+			_validatorRuleFactories = validatorRuleFactories;
 		}
-
-		public abstract bool CanCreateValidatorRule(dynamic propertyDefinition);
-		public abstract IDictionary<string, IProperty> GetValidatorRules(string nameSpace, string propertyName, dynamic propertyDefinition);
 
 		public virtual IDictionary<string, IProperty> GetValidatorRules(dynamic propertyDefinition)
 		{
 			return GetValidatorRules(string.Empty, string.Empty, propertyDefinition);
 		}
 
-		protected IDictionary<string, IProperty> GetOwnProperty(string nameSpace, string propertyName, dynamic propertyDefinition)
+		public IDictionary<string, IProperty> GetValidatorRules(string nameSpace, string propertyName, dynamic propertyDefinition) 
 		{
-			var properties = new Dictionary<string, IProperty>();
-
-			if (String.IsNullOrEmpty(propertyName))
-				return properties;
-
-			if (!String.IsNullOrEmpty(nameSpace))
-			{
-				nameSpace += ".";
-			}
-
-			var description = propertyDefinition.description.HasValue ? propertyDefinition.description.Value : null;
-
-			var validatorRuleFactories = ValidatorRuleFactories.Where(f => f.CanCreateValidatorRule(propertyDefinition)).ToList();
-			var objectRules = validatorRuleFactories.Select<IValidatorRuleFactory, Func<dynamic, string>>(ruleFactory => ruleFactory.GetValidatorRules(propertyDefinition)).ToList();
-			var objectProperty = new Property { Name = propertyName, Description = description, Rules = objectRules };
-			properties.Add(nameSpace + propertyName, objectProperty);
-			return properties;
-		}
-	}
-
-	public class PropertyReferenceTypeRuleFactory : ReferenceTypeRuleFactory
-	{
-		public PropertyReferenceTypeRuleFactory(IEnumerable<IValidatorRuleFactory> validatorRuleFactories) : base(validatorRuleFactories)
-		{
-		}
-
-		public override bool CanCreateValidatorRule(dynamic propertyDefinition)
-		{
-			return propertyDefinition is KeyValuePair<string, dynamic>;
-		}
-
-		public override IDictionary<string, IProperty> GetValidatorRules(string nameSpace, string propertyName, dynamic propertyDefinition)
-		{
-			return GetOwnProperty(nameSpace, propertyName, propertyDefinition);
-		}
-	}
-
-	public class ObjectReferenceTypeRuleFactory : ReferenceTypeRuleFactory
-	{
-		private IReferenceTypeRuleFactoryLocator _locator;
-
-		public ObjectReferenceTypeRuleFactory(IEnumerable<IValidatorRuleFactory> validatorRuleFactories) : base(validatorRuleFactories)
-		{
-			_locator = BootstrapperLocator.Bootstrapper.GetReferenceTypeRuleFactoryLocator();
-		}
-
-		public override bool CanCreateValidatorRule(dynamic propertyDefinition)
-		{
-			return propertyDefinition is DynamicDictionary.DynamicDictionary;
-		}
-
-		public override IDictionary<string, IProperty> GetValidatorRules(string nameSpace, string propertyName, dynamic propertyDefinition) 
-		{
-			IDictionary<string, IProperty> properties = GetOwnProperty(nameSpace, propertyName, propertyDefinition);
+			IDictionary<string, IProperty> properties = GetValidatorRulesForThisProperty(nameSpace, propertyName, propertyDefinition);
 
 			dynamic nestedPropertyDefinitions = (DynamicDictionary.DynamicDictionary)propertyDefinition.properties;
 			if (null != nestedPropertyDefinitions)
@@ -96,16 +39,44 @@ namespace FerroJson
 				foreach (var name in nestedPropertyDefinitions.Keys)
 				{
 					dynamic value = (DynamicDictionary.DynamicDictionary)nestedPropertyDefinitions[name];
-					var keyValuePair = new KeyValuePair<string, dynamic>(name, value);
-					var validator = _locator.Locate(keyValuePair);
-					if (null != validator)
+
+					if (value.type.HasValue && value.type.Value is string && value.type.Value.ToLowerInvariant() == "array")
 					{
-						IDictionary<string, IProperty> nestedProperties = validator.GetValidatorRules(nameSpace, name, value);
+						if (!value.items.HasValue)
+						{
+							throw new InvalidDataException("Properties of type array must contain item definitions");
+						}
+
+						IDictionary<string, IProperty> nestedProperties = GetValidatorRules(nameSpace, name, value.items.Value);
+						properties = properties.AddRange(nestedProperties);	
+					}
+					else
+					{
+						IDictionary<string, IProperty> nestedProperties = GetValidatorRules(nameSpace, name, value);
 						properties = properties.AddRange(nestedProperties);
 					}
 				}
 			}
 
+			return properties;
+		}
+
+		//This name sucks bigtime... what happens here is more like an init or config or read defintion
+		private IDictionary<string, IProperty> GetValidatorRulesForThisProperty(string nameSpace, string propertyName, dynamic propertyDefinition)
+		{
+			var properties = new Dictionary<string, IProperty>();
+
+			if (String.IsNullOrEmpty(propertyName))
+			{
+				return properties;
+			}
+
+			var description = propertyDefinition.description.HasValue ? propertyDefinition.description.Value : null;
+
+			var validatorRuleFactories = _validatorRuleFactories.Where(f => f.CanCreateValidatorRule(propertyDefinition));
+			var objectRules = validatorRuleFactories.Select<IValidatorRuleFactory, Func<dynamic, string>>(ruleFactory => ruleFactory.GetValidatorRules(propertyDefinition));
+			var objectProperty = new Property { Name = propertyName, Description = description, Rules = objectRules };
+			properties.Add(nameSpace.AppendToNameSpace(propertyName), objectProperty);
 			return properties;
 		}
 	}

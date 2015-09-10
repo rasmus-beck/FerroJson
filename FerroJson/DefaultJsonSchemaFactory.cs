@@ -7,10 +7,10 @@
 
     public class DefaultJsonSchemaFactory : IJsonSchemaFactory
     {
-	    private readonly ObjectReferenceTypeRuleFactory _rootFactory;
+	    private readonly IReferenceTypeRuleFactory _rootFactory;
 	    private readonly IJsonSchemaCacheProvider _cache;
 
-	    public DefaultJsonSchemaFactory(ObjectReferenceTypeRuleFactory rootFactory, IJsonSchemaCacheProvider cache)
+	    public DefaultJsonSchemaFactory(IReferenceTypeRuleFactory rootFactory, IJsonSchemaCacheProvider cache)
 		{
 			_rootFactory = rootFactory;
 			_cache = cache;

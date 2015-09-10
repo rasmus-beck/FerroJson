@@ -60,7 +60,7 @@ namespace FerroJson.Extensions
 
 		private static IEnumerable<dynamic> ArrayAsDynamicDictionary(ParseTreeNode node)
 		{
-			return node.ChildNodes.Select(childNode => GetValue(childNode)).ToList();
+			return node.ChildNodes.Select(childNode => GetValue(childNode)).ToArray();
 		}
 	}
 }

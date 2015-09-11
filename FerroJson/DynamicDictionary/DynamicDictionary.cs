@@ -8,8 +8,7 @@ namespace FerroJson.DynamicDictionary
 	/// <summary>
 	/// A dictionary that supports dynamic access.
 	/// </summary>
-	public class DynamicDictionary : DynamicObject, IEquatable<DynamicDictionary>, IHideObjectMembers, IEnumerable<string>,
-		IDictionary<string, object>
+	public class DynamicDictionary : DynamicObject, IEquatable<DynamicDictionary>, IHideObjectMembers, IEnumerable<string>, IDictionary<string, object>
 	{
 		private readonly IDictionary<string, dynamic> dictionary =
 			new Dictionary<string, dynamic>(StringComparer.InvariantCulture);
@@ -351,9 +350,41 @@ namespace FerroJson.DynamicDictionary
 			foreach (var item in dictionary)
 			{
 				var newKey = item.Key;
-				var newValue = ((DynamicDictionaryValue) item.Value).Value;
 
-				data.Add(newKey, newValue);
+				if (item.Value is DynamicDictionaryValue)
+				{
+					var newValue = ((DynamicDictionaryValue)item.Value).Value;
+
+					if (newValue is List<object>)
+					{
+						var oldArray = newValue as List<object>;
+						var newArray = new object[oldArray.Count];
+						for (int i = 0; i < oldArray.Count; i++)
+						{
+							var newArrayValue = oldArray[i];
+							if (newArrayValue is DynamicDictionary)
+							{
+								var ddict = newArrayValue as DynamicDictionary;
+								newArray[i] = ddict.ToDictionary();
+							}
+							else
+							{
+								newArray[i] = newArrayValue;
+							}
+						}
+
+						data.Add(newKey, newArray);
+					}
+					else if (newValue is DynamicDictionary)
+					{
+						var ddict = newValue as DynamicDictionary;
+						data.Add(newKey, ddict.ToDictionary());
+					}
+					else
+					{
+						data.Add(newKey, newValue);
+					}
+				}				
 			}
 
 			return data;

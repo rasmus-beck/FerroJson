@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using FerroJson.Extensions;
@@ -17,7 +18,7 @@ namespace FerroJson
 			_jsonParser = jsonParser;
 		}
 
-		public bool TryValidate(string jsonDocument, string jsonSchema, out IEnumerable<IPropertyValidationError> validationErrors)
+		public bool TryValidate(string jsonDocument, string jsonSchema, out dynamic validationErrors)
 		{
 			dynamic documentDictionary = _jsonParser.Parse(jsonDocument);
 			dynamic schemaDictionary = _jsonParser.Parse(jsonSchema);
@@ -26,80 +27,110 @@ namespace FerroJson
 
 			var schema = _jsonSchemaFactory.GetSchema(schemaDictionary, schemaHash);
 
-			validationErrors = ValidateObject(documentDictionary, String.Empty, schema);
-			return validationErrors == null || !validationErrors.Any();
+			dynamic result = ValidateObject(documentDictionary, String.Empty, schema);
+
+			if (null != result)
+			{
+				validationErrors = result.ToDictionary();
+				return false;
+			}
+
+			validationErrors = null;
+			return true;
 		}
 
-		private IEnumerable<IPropertyValidationError> ValidateObject(dynamic node, string nameSpace, IJsonSchema schema)
+		private dynamic ValidateObject(dynamic node, string nameSpace, IJsonSchema schema)
 		{
-			var errors = new List<IPropertyValidationError>();
+			var validationError = new DynamicDictionary.DynamicDictionary();
 
 			foreach (string property in node)
 			{
 				dynamic value = node[property];
+				dynamic validationResult = null;
 
 				if (value.Value is Array)
 				{
-					errors.AddRange(ValidateArray(value.Value, property, nameSpace, schema));
+					validationResult = ValidateArray(value.Value, property, nameSpace, schema);
 				}
 				else if (value.Value is DynamicDictionary.DynamicDictionary)
 				{
-					errors.AddRange(ValidateObject(value.Value, nameSpace.AppendToNameSpace(property), schema));
+					validationResult = ValidateObject(value.Value, nameSpace.AppendToNameSpace(property), schema);
 				}
 				else
 				{
-					errors.AddRange(ValidateProperty(value.Value, nameSpace.AppendToNameSpace(property), schema));
+					validationResult = ValidateProperty(value.Value, nameSpace.AppendToNameSpace(property), schema);
 				}
 
-				var isArray = value.Value is Array;
-				var isObject = value.Value is DynamicDictionary.DynamicDictionary;
+				if (null != validationResult)
+				{
+					validationError[property] = validationResult;
+				}
 			}
 
-			return errors;
+			if (validationError.Count > 0)
+			{
+				return validationError as dynamic;
+			}
+
+			return null;
 		}
 
-		private IEnumerable<IPropertyValidationError> ValidateProperty(dynamic value, string nameSpace, IJsonSchema schema)
+		private dynamic ValidateProperty(dynamic value, string nameSpace, IJsonSchema schema)
 		{
 			if (!schema.PropertyRules.ContainsKey(nameSpace))
 			{
-				return new List<IPropertyValidationError>();
+				return null;
 			}
 
 			var rules = schema.PropertyRules[nameSpace];
-
 			var propertyErrors = rules.Rules.Select(rule => rule(value) as String).Where(result => !String.IsNullOrEmpty(result)).ToList();
 
 			if (propertyErrors.Any())
 			{
-				var validationError = new PropertyValidationError
-				{
-					Errors = propertyErrors,
-					PropertyDescription = rules.Description,
-					AttemptedValue = value
-				};
-
-				return new List<IPropertyValidationError> { validationError };
+				var validationError = new DynamicDictionary.DynamicDictionary();
+				validationError["Errors"] = propertyErrors;
+				validationError["Description"] = rules.Description;
+				validationError["AttemptedValue"] = value;
+				return validationError;
 			}
 
-			return new List<IPropertyValidationError>();
+			return null;
 		}
 
-		private IEnumerable<IPropertyValidationError> ValidateArray(dynamic array, string property, string nameSpace, IJsonSchema schema)
+		private dynamic ValidateArray(dynamic array, string property, string nameSpace, IJsonSchema schema)
 		{
-			var errors = new List<IPropertyValidationError>();
+			var items = new List<dynamic>(array.Length);
 			
-			foreach (dynamic arrayItem in array)
+			for (var i = 0; i < array.Length; i++)
 			{
+				dynamic arrayItem = array[i];
+				dynamic error = null;
+
 				if (arrayItem.GetType().IsValueType)
 				{
-					errors.AddRange(ValidateProperty(arrayItem, nameSpace.AppendToNameSpace(property), schema));
+					error = ValidateProperty(arrayItem, nameSpace.AppendToNameSpace(property), schema);
 				}
 				else
 				{
-					errors.AddRange(ValidateObject(arrayItem, nameSpace.AppendToNameSpace(property), schema));
+					error = ValidateObject(arrayItem, nameSpace.AppendToNameSpace(property), schema);
+				}
+
+				if (null != error)
+				{
+					error.ArrayIndex = i;
+					items.Add(error);
 				}
 			}
-			return errors;
+
+			if (items.Any())
+			{
+				var validationError = new DynamicDictionary.DynamicDictionary();
+				// TODO: missing description
+				validationError["Items"] = items;
+				return validationError;
+			}
+
+			return null;
 		}
 	}
 }

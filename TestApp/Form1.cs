@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 using FerroJson;
+using FerroJson.DynamicDictionary;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace TestApp
 {
@@ -29,16 +35,18 @@ namespace TestApp
             }
 
 			var validator = new Validator();
-			IEnumerable<IPropertyValidationError> errors = new List<IPropertyValidationError>();
+			dynamic errors = null;
 			validator.Validate(testData, testSchema, out errors);
 
-			foreach (var propertyValidationResult in errors)
+			string json = JsonConvert.SerializeObject(errors, new JsonSerializerSettings
 			{
-				foreach (var error in propertyValidationResult.Errors)
-				{
-					Console.WriteLine(error);
-				}
-			}
+				ContractResolver = new CamelCasePropertyNamesContractResolver(),
+				Formatting = Formatting.Indented
+			});
+
+			Console.WriteLine(json);
         }
     }
+
+
 }
